@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>KinetiMesh — Federated Kinetic Intelligence</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap');
+:root{
+  --bg:#050810;--s1:#080d1a;--s2:#0c1428;--card:rgba(255,255,255,.03);
+  --border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.1);
+  --text:#f0f4ff;--muted:#7a82a6;--dim:#3a4060;
+  --blue:#4f8fff;--blue2:#2563eb;--blue-g:linear-gradient(135deg,#4f8fff,#06b6d4);
+  --purple:#9333ea;--purple2:#a855f7;
+  --green:#10b981;--amber:#f59e0b;--coral:#ef4444;--teal:#14b8a6;
+  --grad1:linear-gradient(135deg,#4f8fff 0%,#9333ea 50%,#06b6d4 100%);
+  --grad2:linear-gradient(135deg,#10b981 0%,#4f8fff 100%);
+  --sans:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);overflow-x:hidden}
+
+/* ── CANVAS BACKGROUND ── */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.6}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 5%;
+    display:flex;align-items:center;height:68px;
+    background:rgba(5,8,16,.8);backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:1.1rem;font-weight:700;
+          background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-logo span{font-weight:300;opacity:.5}
+.nav-links{display:flex;gap:2rem;margin-left:3rem}
+.nav-links a{font-size:.85rem;color:var(--muted);text-decoration:none;transition:color .2s;font-weight:500}
+.nav-links a:hover{color:var(--text)}
+.nav-btns{margin-left:auto;display:flex;gap:.75rem;align-items:center}
+.btn-outline{padding:8px 18px;border:1px solid var(--border2);border-radius:8px;
+             font-size:.82rem;color:var(--muted);cursor:pointer;background:transparent;
+             font-family:var(--sans);transition:all .2s}
+.btn-outline:hover{color:var(--text);border-color:var(--blue);background:rgba(79,143,255,.08)}
+.btn-primary{padding:8px 20px;border-radius:8px;border:none;cursor:pointer;
+             background:var(--grad1);color:#fff;font-size:.82rem;font-weight:600;
+             font-family:var(--sans);transition:all .2s;position:relative;overflow:hidden}
+.btn-primary::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.15);opacity:0;transition:.2s}
+.btn-primary:hover::after{opacity:1}
+
+/* ── HERO ── */
+#hero{position:relative;min-height:100vh;display:flex;align-items:center;
+      justify-content:center;padding:8rem 5% 5rem;z-index:1;text-align:center}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.5rem;
+              padding:5px 14px;border-radius:20px;
+              border:1px solid rgba(79,143,255,.3);
+              background:rgba(79,143,255,.08);
+              font-family:var(--mono);font-size:.72rem;color:var(--blue);
+              letter-spacing:.08em;text-transform:uppercase;margin-bottom:2rem;
+              opacity:0;transform:translateY(20px)}
+.hero-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(79,143,255,.5)}50%{box-shadow:0 0 0 8px rgba(79,143,255,0)}}
+.hero-title{font-size:clamp(3rem,8vw,6.5rem);font-weight:800;line-height:1;letter-spacing:-.04em;
+            margin-bottom:1.5rem;opacity:0;transform:translateY(30px)}
+.hero-title .grad{background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-title .line2{display:block;font-weight:300;font-size:.55em;color:var(--muted);letter-spacing:-.01em;margin-top:.3rem}
+.hero-desc{max-width:580px;margin:0 auto 2.5rem;font-size:1.05rem;color:var(--muted);
+           line-height:1.75;opacity:0;transform:translateY(20px)}
+.hero-ctas{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;
+           opacity:0;transform:translateY(20px)}
+.cta-big{padding:14px 32px;border-radius:10px;border:none;cursor:pointer;
+         background:var(--grad1);color:#fff;font-size:.95rem;font-weight:600;
+         font-family:var(--sans);transition:all .25s;box-shadow:0 0 40px rgba(79,143,255,.25)}
+.cta-big:hover{transform:translateY(-2px);box-shadow:0 0 60px rgba(79,143,255,.4)}
+.cta-ghost{padding:14px 32px;border-radius:10px;border:1px solid var(--border2);
+           background:transparent;color:var(--text);font-size:.95rem;font-weight:500;
+           cursor:pointer;font-family:var(--sans);transition:all .25s}
+.cta-ghost:hover{background:rgba(255,255,255,.05);transform:translateY(-2px)}
+
+/* ── STATS STRIP ── */
+.stats-strip{position:relative;z-index:1;display:flex;justify-content:center;
+             gap:0;padding:2rem 5%;border-top:1px solid var(--border);
+             border-bottom:1px solid var(--border);background:rgba(8,13,26,.6);
+             backdrop-filter:blur(10px)}
+.stat{flex:1;max-width:200px;text-align:center;padding:1.5rem 1rem}
+.stat+.stat{border-left:1px solid var(--border)}
+.stat-val{font-family:var(--mono);font-size:2rem;font-weight:700;
+          background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+          line-height:1}
+.stat-lbl{font-size:.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin-top:.4rem}
+
+/* ── SECTIONS ── */
+section{position:relative;z-index:1;padding:6rem 5%}
+.section-tag{font-family:var(--mono);font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;
+             color:var(--blue);margin-bottom:.75rem}
+.section-title{font-size:clamp(1.8rem,4vw,3rem);font-weight:700;letter-spacing:-.03em;
+               line-height:1.15;margin-bottom:1rem}
+.section-sub{font-size:1rem;color:var(--muted);max-width:520px;line-height:1.75}
+
+/* ── ARCHITECTURE VISUAL ── */
+#architecture{background:linear-gradient(180deg,var(--bg) 0%,var(--s1) 50%,var(--bg) 100%)}
+.arch-visual{margin-top:4rem;position:relative}
+.arch-row{display:flex;gap:12px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+.arch-node{border-radius:12px;padding:1rem 1.25rem;border:1px solid var(--border);
+           background:var(--card);backdrop-filter:blur(10px);
+           transition:all .3s;cursor:default;position:relative;overflow:hidden}
+.arch-node::before{content:'';position:absolute;inset:0;opacity:0;transition:.3s}
+.arch-node:hover{transform:translateY(-4px);border-color:var(--border2)}
+.arch-node:hover::before{opacity:1}
+.arch-node.blue {border-color:rgba(79,143,255,.2)} .arch-node.blue::before{background:rgba(79,143,255,.05)}
+.arch-node.purple{border-color:rgba(147,51,234,.2)}.arch-node.purple::before{background:rgba(147,51,234,.05)}
+.arch-node.green {border-color:rgba(16,185,129,.2)} .arch-node.green::before{background:rgba(16,185,129,.05)}
+.arch-node.amber {border-color:rgba(245,158,11,.2)} .arch-node.amber::before{background:rgba(245,158,11,.05)}
+.arch-node.teal  {border-color:rgba(20,184,166,.2)} .arch-node.teal::before{background:rgba(20,184,166,.05)}
+.an-icon{font-size:1.5rem;margin-bottom:.4rem}
+.an-title{font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:.2rem}
+.an-sub{font-size:.7rem;color:var(--muted);line-height:1.4}
+.arch-arrow{text-align:center;color:var(--dim);font-size:.85rem;padding:.25rem 0}
+.arch-label{position:absolute;left:-80px;top:50%;transform:translateY(-50%);
+            font-family:var(--mono);font-size:.6rem;color:var(--dim);text-transform:uppercase;
+            letter-spacing:.1em;white-space:nowrap}
+
+/* ── FEATURES GRID ── */
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem;margin-top:3.5rem}
+.feat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;
+           padding:1.75rem;transition:all .3s;cursor:default;position:relative;overflow:hidden}
+.feat-card::after{content:'';position:absolute;inset:0;border-radius:16px;opacity:0;transition:.3s;
+                  background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(79,143,255,.06),transparent 70%)}
+.feat-card:hover{transform:translateY(-6px);border-color:var(--border2)}
+.feat-card:hover::after{opacity:1}
+.fc-num{font-family:var(--mono);font-size:.65rem;color:var(--dim);margin-bottom:.75rem;letter-spacing:.05em}
+.fc-icon{font-size:2rem;margin-bottom:.75rem;display:block}
+.fc-title{font-size:1rem;font-weight:600;margin-bottom:.5rem}
+.fc-body{font-size:.83rem;color:var(--muted);line-height:1.7}
+.fc-tag{display:inline-block;font-family:var(--mono);font-size:.62rem;padding:2px 8px;border-radius:4px;
+        margin-top:.75rem;border:1px solid}
+.fc-tag.blue{background:rgba(79,143,255,.1);border-color:rgba(79,143,255,.25);color:var(--blue)}
+.fc-tag.purple{background:rgba(147,51,234,.1);border-color:rgba(147,51,234,.25);color:var(--purple2)}
+.fc-tag.green{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.25);color:var(--green)}
+.fc-tag.amber{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.25);color:var(--amber)}
+.fc-tag.teal{background:rgba(20,184,166,.1);border-color:rgba(20,184,166,.25);color:var(--teal)}
+.fc-tag.coral{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.25);color:var(--coral)}
+
+/* ── MATH SECTION ── */
+#math{background:var(--s1)}
+.eq-cards{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:3rem}
+.eq-card{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:12px;padding:1.25rem}
+.eq-title{font-size:.78rem;font-weight:600;color:var(--text);margin-bottom:.5rem}
+.eq-sub{font-size:.72rem;color:var(--muted);margin-bottom:.75rem;line-height:1.5}
+.eq-code{font-family:var(--mono);font-size:.72rem;color:var(--green);line-height:1.9;
+         background:rgba(0,0,0,.4);padding:.75rem 1rem;border-radius:8px;border:1px solid var(--border)}
+
+/* ── TECH STACK ── */
+.stack-grid{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:2.5rem}
+.stack-chip{display:flex;align-items:center;gap:.5rem;padding:.5rem 1rem;
+            border-radius:8px;border:1px solid var(--border);background:var(--card);
+            font-size:.8rem;color:var(--muted);transition:all .25s;cursor:default}
+.stack-chip:hover{border-color:var(--border2);color:var(--text);transform:translateY(-2px)}
+.chip-icon{font-size:1rem}
+
+/* ── ROADMAP ── */
+#roadmap{background:var(--s1)}
+.timeline{position:relative;margin-top:3rem;padding-left:2.5rem}
+.timeline::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--blue),var(--purple),var(--teal))}
+.tl-item{position:relative;padding:0 0 3rem 2rem}
+.tl-item::before{content:'';position:absolute;left:-4px;top:4px;width:9px;height:9px;border-radius:50%;border:2px solid var(--blue);background:var(--bg)}
+.tl-phase{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:.3rem}
+.tl-title{font-size:1.05rem;font-weight:600;margin-bottom:.4rem}
+.tl-dur{font-family:var(--mono);font-size:.68rem;color:var(--dim);margin-bottom:.75rem}
+.tl-items{display:flex;flex-wrap:wrap;gap:.4rem}
+.tl-tag{font-size:.72rem;padding:3px 10px;border-radius:4px;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted)}
+
+/* ── CTA SECTION ── */
+#cta-section{text-align:center;padding:8rem 5%}
+.cta-glow{display:inline-block;position:relative}
+.cta-glow::before{content:'';position:absolute;inset:-40px;background:radial-gradient(ellipse,rgba(79,143,255,.15),transparent 70%);pointer-events:none}
+
+/* ── FOOTER ── */
+footer{padding:3rem 5%;border-top:1px solid var(--border);
+       display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.footer-logo{font-family:var(--mono);font-size:.85rem;font-weight:700;
+             background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.footer-links{display:flex;gap:1.5rem}
+.footer-links a{font-size:.8rem;color:var(--dim);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(--muted)}
+.footer-copy{font-size:.75rem;color:var(--dim)}
+
+/* ── SCROLL ANIMATIONS ── */
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+@media(max-width:768px){
+  .eq-cards{grid-template-columns:1fr}
+  .stats-strip{flex-wrap:wrap}
+  .stat+.stat{border-left:none;border-top:1px solid var(--border)}
+  nav .nav-links{display:none}
+  .arch-label{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Particle Background -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-logo">KinetiMesh<span> / v3.0</span></div>
+  <div class="nav-links">
+    <a href="#architecture">Architecture</a>
+    <a href="#features">Features</a>
+    <a href="#math">Research</a>
+    <a href="#stack">Stack</a>
+    <a href="#roadmap">Roadmap</a>
+  </div>
+  <div class="nav-btns">
+    <button class="btn-outline" onclick="window.open('KinetiMesh_Ultimate_Proposal.html')">📄 Research Paper</button>
+    <button class="btn-primary" onclick="window.open('KinetiMesh_v3_FullStack.html')">🚀 Launch Demo</button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div>
+    <div class="hero-eyebrow" id="eyebrow">
+      <span class="dot"></span>
+      B.Tech IT Research Project · 2025
+    </div>
+    <h1 class="hero-title" id="htitle">
+      <span class="grad">KinetiMesh</span>
+      <span class="line2">Federated Kinetic Intelligence for Urban Energy</span>
+    </h1>
+    <p class="hero-desc" id="hdesc">
+      The world's first AI-governed, federated kinetic energy harvesting network — converting
+      mechanical waste from rail systems and urban pedestrian infrastructure into grid-injectable
+      electricity, managed by FedProx FL, GraphSAGE GNN, and PPO reinforcement learning.
+    </p>
+    <div class="hero-ctas" id="hctas">
+      <button class="cta-big" onclick="window.open('KinetiMesh_v3_FullStack.html')">
+        ⚡ Open Live System Demo
+      </button>
+      <button class="cta-ghost" onclick="window.open('KinetiMesh_Ultimate_Proposal.html')">
+        📖 Read Research Proposal
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<div class="stats-strip">
+  <div class="stat"><div class="stat-val" id="s1">0</div><div class="stat-lbl">km Railway Track (India)</div></div>
+  <div class="stat"><div class="stat-val" id="s2">0</div><div class="stat-lbl">Daily Rail Journeys</div></div>
+  <div class="stat"><div class="stat-val" id="s3">0</div><div class="stat-lbl">mW per Floor Tile</div></div>
+  <div class="stat"><div class="stat-val" id="s4">0</div><div class="stat-lbl">AI Subsystems</div></div>
+  <div class="stat"><div class="stat-val" id="s5">0</div><div class="stat-lbl">Novel Contributions</div></div>
+</div>
+
+<!-- Architecture -->
+<section id="architecture">
+  <div class="reveal">
+    <div class="section-tag">System Design</div>
+    <h2 class="section-title">Four-Tier Intelligence Stack</h2>
+    <p class="section-sub">Each tier is independently deployable. Value compounds as layers are added — Tier 1 alone powers trackside sensors; the full stack integrates with city microgrids.</p>
+  </div>
+  <div class="arch-visual reveal">
+    <div class="arch-row">
+      <div class="arch-node blue" style="width:200px"><div class="an-icon">🚂</div><div class="an-title">Rail PEH Arrays</div><div class="an-sub">PMEH trackpad stacks · 30–650 Hz</div></div>
+      <div class="arch-node blue" style="width:200px"><div class="an-icon">👣</div><div class="an-title">Floor PEH Tiles</div><div class="an-sub">Bimorph PZT · 455×405mm · $10/tile</div></div>
+      <div class="arch-node blue" style="width:200px"><div class="an-icon">💨</div><div class="an-title">Wind + Thermal</div><div class="an-sub">Draft harvester + Peltier TEG</div></div>
+    </div>
+    <div class="arch-arrow">↓ &nbsp; AC→DC · Bridge Rectifier · Charge IC · LiPo Buffer &nbsp; ↓</div>
+    <div class="arch-row">
+      <div class="arch-node green" style="width:640px"><div class="an-icon">🔌</div><div class="an-title">Tier 2 — Edge Intelligence (TinyML Mesh)</div><div class="an-sub">RPi CM4 · TensorFlow Lite · LoRaWAN · MQTT over TLS · On-device FedProx client · ε-DP gradient privacy</div></div>
+    </div>
+    <div class="arch-arrow">↓ &nbsp; LoRaWAN sub-GHz + 5G backhaul &nbsp; ↓</div>
+    <div class="arch-row">
+      <div class="arch-node purple" style="width:200px"><div class="an-icon">🧠</div><div class="an-title">FedProx FL</div><div class="an-sub">LSTM 24h harvest prediction · privacy-preserving</div></div>
+      <div class="arch-node purple" style="width:200px"><div class="an-icon">🕸</div><div class="an-title">GNN Digital Twin</div><div class="an-sub">GraphSAGE topology model · 60s live sync</div></div>
+      <div class="arch-node purple" style="width:200px"><div class="an-icon">🤖</div><div class="an-title">PPO RL Router</div><div class="an-sub">Demand-aware microgrid dispatch · DT-trained</div></div>
+    </div>
+    <div class="arch-arrow">↓ &nbsp; REST + WebSocket dispatch &nbsp; ↓</div>
+    <div class="arch-row">
+      <div class="arch-node amber" style="width:300px"><div class="an-icon">⚡</div><div class="an-title">City Microgrid</div><div class="an-sub">Smart meters · bidirectional inverters · SCADA</div></div>
+      <div class="arch-node amber" style="width:300px"><div class="an-icon">⛓</div><div class="an-title">Blockchain P2P Market</div><div class="an-sub">Hyperledger Fabric · energy credit tokens · &lt;3s finality</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features" style="background:var(--s1)">
+  <div class="reveal">
+    <div class="section-tag">Core Innovations</div>
+    <h2 class="section-title">Six Novel IT Contributions</h2>
+    <p class="section-sub">Each innovation is independently publishable. Together they form a system with no equivalent in the literature.</p>
+  </div>
+  <div class="feat-grid">
+    <div class="feat-card reveal" onmousemove="cardGlow(event,this)">
+      <div class="fc-num">01 / FEDERATED LEARNING</div>
+      <span class="fc-icon">🧠</span>
+      <div class="fc-title">FedProx Harvest Prediction</div>
+      <div class="fc-body">LSTM-based 24h energy forecast trained federally across 18+ heterogeneous edge nodes. Proximal regularization (μ=0.01) prevents model drift between rail vs floor node distributions. Raw data never leaves the device — ε=1.0 differential privacy.</div>
+      <span class="fc-tag blue">FedProx · LSTM · ε-DP</span>
+    </div>
+    <div class="feat-card reveal" onmousemove="cardGlow(event,this)">
+      <div class="fc-num">02 / GRAPH NEURAL NETWORK</div>
+      <span class="fc-icon">🕸</span>
+      <div class="fc-title">GraphSAGE Digital Twin</div>
+      <div class="fc-body">City's kinetic topology as a directed graph G=(V,E). GraphSAGE aggregates neighbourhood features across 3 hops to model real-time energy flow. Syncs from live MQTT telemetry every 60s. Serves as the RL agent's training environment.</div>
+      <span class="fc-tag purple">GraphSAGE · K=3 · 128-dim</span>
+    </div>
+    <div class="feat-card reveal" onmousemove="cardGlow(event,this)">
+      <div class="fc-num">03 / REINFORCEMENT LEARNING</div>
+      <span class="fc-icon">🤖</span>
+      <div class="fc-title">PPO Power Routing Agent</div>
+      <div class="fc-body">Proximal Policy Optimization agent governs real-time power allocation across microgrid zones. Clipped surrogate objective (ε=0.2) prevents unstable grid updates. Trained 10M steps in Digital Twin simulation before live deployment.</div>
+      <span class="fc-tag green">PPO · Gymnasium · 10M steps</span>
+    </div>
+    <div class="feat-card reveal" onmousemove="cardGlow(event,this)">
+      <div class="fc-num">04 / QUANTUM COMPUTING</div>
+      <span class="fc-icon">⚛</span>
+      <div class="fc-title">QAOA Energy Routing</div>
+      <div class="fc-body">First application of QAOA to kinetic energy mesh routing. Energy allocation formulated as a QUBO problem solved by quantum annealing. Claims O(√N) speedup over classical O(N). Validated on Qiskit Aer simulator — hardware-ready.</div>
+      <span class="fc-tag amber">QAOA · QUBO · Qiskit</span>
+    </div>
+    <div class="feat-card reveal" onmousemove="cardGlow(event,this)">
+      <div class="fc-num">05 / BLOCKCHAIN</div>
+      <span class="fc-icon">⛓</span>
+      <div class="fc-title">P2P Energy Credit Market</div>
+      <div class="fc-body">Harvested energy tokenized on Hyperledger Fabric. Zone-to-zone P2P trading via Go smart contracts with &lt;3s finality. Creates economic incentives for infrastructure owners to join KinetiMesh. Full immutable audit trail for regulatory compliance.</div>
+      <span class="fc-tag teal">Hyperledger · Go · &lt;3s</span>
+    </div>
+    <div class="feat-card reveal" onmousemove="cardGlow(event,this)">
+      <div class="fc-num">06 / ANOMALY DETECTION</div>
+      <span class="fc-icon">🔍</span>
+      <div class="fc-title">Real-Time Anomaly Scoring</div>
+      <div class="fc-body">LSTM autoencoder detects power anomalies (spikes, node failures, sensor drift) in real time. Anomaly score fed back into RL agent state, enabling adaptive dispatch during abnormal events. Triggers automatic FL local model re-weighting.</div>
+      <span class="fc-tag coral">LSTM-AE · Real-time · Adaptive</span>
+    </div>
+  </div>
+</section>
+
+<!-- Math -->
+<section id="math">
+  <div class="reveal">
+    <div class="section-tag">Research Formulations</div>
+    <h2 class="section-title">Core Mathematical Innovations</h2>
+    <p class="section-sub">Formal definitions for all four algorithmic contributions — ready for peer review submission.</p>
+  </div>
+  <div class="eq-cards reveal">
+    <div class="eq-card">
+      <div class="eq-title">FedProx Global Objective</div>
+      <div class="eq-sub">Proximal term μ prevents client drift across heterogeneous harvester types (rail vs floor vs thermal). μ=0 recovers standard FedAvg.</div>
+      <div class="eq-code">min  F(w) + (μ/2)‖w − w_t‖²
+where F(w) = Σ_k p_k · F_k(w)
+Model: LSTM(x_t) → ŷ_{t+1..t+96}
+Target: MAE ≤ 0.08 kW/node</div>
+    </div>
+    <div class="eq-card">
+      <div class="eq-title">GraphSAGE Aggregation</div>
+      <div class="eq-sub">Inductive learning enables generalization to new harvester nodes added to the mesh without full retraining.</div>
+      <div class="eq-code">h_v^(k) = ReLU(W^(k) · MEAN(
+  {h_u^(k-1): u ∈ N(v) ∪ {v}} ))
+K=3 hops · d=128 · sync 60s
+Error target: ≤ 5% per node</div>
+    </div>
+    <div class="eq-card">
+      <div class="eq-title">PPO Clipped Objective</div>
+      <div class="eq-sub">Clipping prevents destructive policy updates critical in live grid environments where instability causes outages.</div>
+      <div class="eq-code">L_CLIP(θ) = E[min(r_t·Â_t,
+  clip(r_t, 1−ε, 1+ε)·Â_t)]
+r_t = α·green − β·curtail − γ·import
+ε=0.2 · γ=0.99 · 10M steps</div>
+    </div>
+    <div class="eq-card">
+      <div class="eq-title">QAOA Circuit (p layers)</div>
+      <div class="eq-sub">Energy routing as QUBO, solved by QAOA. First application to kinetic energy mesh routing in literature.</div>
+      <div class="eq-code">|ψ(γ,β)⟩ = U_B(β_p)U_C(γ_p)…|+⟩^n
+H_C = Σ J_ij·σ_i·σ_j + Σ h_i·σ_i
+Advantage: O(√N) vs classical O(N)
+Depth p=3 · Qubits: 6</div>
+    </div>
+  </div>
+</section>
+
+<!-- Stack -->
+<section id="stack">
+  <div class="reveal">
+    <div class="section-tag">Technology</div>
+    <h2 class="section-title">Full Production Stack</h2>
+    <p class="section-sub">Every tool chosen for a specific reason. Nothing added for show — each has a documented role in the system.</p>
+  </div>
+  <div class="stack-grid reveal">
+    <div class="stack-chip"><span class="chip-icon">🐍</span>Python 3.12</div>
+    <div class="stack-chip"><span class="chip-icon">⚡</span>FastAPI</div>
+    <div class="stack-chip"><span class="chip-icon">🔥</span>PyTorch 2.3</div>
+    <div class="stack-chip"><span class="chip-icon">🌐</span>PyTorch Geometric</div>
+    <div class="stack-chip"><span class="chip-icon">🤖</span>Stable-Baselines3</div>
+    <div class="stack-chip"><span class="chip-icon">🌸</span>Flower (FL)</div>
+    <div class="stack-chip"><span class="chip-icon">⚛</span>Qiskit 1.1</div>
+    <div class="stack-chip"><span class="chip-icon">🗄</span>TimescaleDB</div>
+    <div class="stack-chip"><span class="chip-icon">🔴</span>Redis</div>
+    <div class="stack-chip"><span class="chip-icon">📡</span>MQTT / LoRaWAN</div>
+    <div class="stack-chip"><span class="chip-icon">⛓</span>Hyperledger Fabric</div>
+    <div class="stack-chip"><span class="chip-icon">🐳</span>Docker Compose</div>
+    <div class="stack-chip"><span class="chip-icon">☸</span>Kubernetes</div>
+    <div class="stack-chip"><span class="chip-icon">📊</span>Grafana</div>
+    <div class="stack-chip"><span class="chip-icon">📈</span>Prometheus</div>
+    <div class="stack-chip"><span class="chip-icon">🔄</span>GitHub Actions</div>
+    <div class="stack-chip"><span class="chip-icon">🌍</span>Three.js</div>
+    <div class="stack-chip"><span class="chip-icon">✨</span>Anime.js</div>
+    <div class="stack-chip"><span class="chip-icon">📉</span>Chart.js 4</div>
+    <div class="stack-chip"><span class="chip-icon">🧮</span>TensorFlow Lite</div>
+    <div class="stack-chip"><span class="chip-icon">🏠</span>MicroPython</div>
+    <div class="stack-chip"><span class="chip-icon">🌐</span>Nginx</div>
+  </div>
+</section>
+
+<!-- Roadmap -->
+<section id="roadmap">
+  <div class="reveal">
+    <div class="section-tag">Execution Plan</div>
+    <h2 class="section-title">30-Month Research Roadmap</h2>
+    <p class="section-sub">Three phases: simulation validation → lab prototype → urban pilot with Indian Railways / Metro Rail.</p>
+  </div>
+  <div class="timeline reveal">
+    <div class="tl-item">
+      <div class="tl-phase">Phase 1</div>
+      <div class="tl-title">Simulation & Modeling</div>
+      <div class="tl-dur">Months 1–6</div>
+      <div class="tl-items">
+        <span class="tl-tag">MATLAB piezo model</span><span class="tl-tag">FedProx FL baseline</span>
+        <span class="tl-tag">Custom Gym env</span><span class="tl-tag">GNN prototype</span>
+        <span class="tl-tag">QAOA QUBO formulation</span><span class="tl-tag">IR open data integration</span>
+        <span class="tl-tag">NeurIPS workshop paper</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-phase">Phase 2</div>
+      <div class="tl-title">Lab Prototype Validation</div>
+      <div class="tl-dur">Months 7–18</div>
+      <div class="tl-items">
+        <span class="tl-tag">10-tile pedestrian rig</span><span class="tl-tag">1km model rail testbed</span>
+        <span class="tl-tag">TinyML FL on RPi CM4</span><span class="tl-tag">Digital Twin live sync</span>
+        <span class="tl-tag">LoRaWAN mesh deployed</span><span class="tl-tag">Hyperledger testnet</span>
+        <span class="tl-tag">IEEE Transactions paper</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-phase">Phase 3</div>
+      <div class="tl-title">Urban Pilot Deployment</div>
+      <div class="tl-dur">Months 19–30</div>
+      <div class="tl-items">
+        <span class="tl-tag">Kolkata Metro MoU</span><span class="tl-tag">3-zone live station</span>
+        <span class="tl-tag">Grid integration (1 feeder)</span><span class="tl-tag">PPO live dispatch</span>
+        <span class="tl-tag">P2P credits live</span><span class="tl-tag">Nature Energy target</span>
+        <span class="tl-tag">India + PCT patent</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta-section">
+  <div class="cta-glow reveal">
+    <div class="section-tag" style="text-align:center">Open Source · Research-Grade · Production-Ready</div>
+    <h2 class="section-title" style="text-align:center;font-size:clamp(2rem,5vw,3.5rem)">
+      The energy is already there.<br>
+      <span style="background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent">
+        The waste is a software problem.
+      </span>
+    </h2>
+    <div style="display:flex;gap:1rem;justify-content:center;margin-top:2.5rem;flex-wrap:wrap">
+      <button class="cta-big" onclick="window.open('KinetiMesh_v3_FullStack.html')">🚀 Launch Live Demo</button>
+      <button class="cta-ghost" onclick="window.open('KinetiMesh_Ultimate_Proposal.html')">📖 Full Research Paper</button>
+    </div>
+    <p style="margin-top:2rem;font-family:var(--mono);font-size:.72rem;color:var(--dim)">
+      Sanchayan · B.Tech Information Technology · github.com/Unwilling-mcu
+    </p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-logo">KinetiMesh v3.0</div>
+  <div class="footer-links">
+    <a href="#">GitHub</a><a href="#">Research Paper</a><a href="#">API Docs</a><a href="#">License</a>
+  </div>
+  <div class="footer-copy">Apache 2.0 · Sanchayan · B.Tech IT · 2025</div>
+</footer>
+
+<script>
+/* ── PARTICLE BACKGROUND ── */
+const bgCanvas = document.getElementById('bg-canvas');
+const bgCtx = bgCanvas.getContext('2d');
+let W, H, particles = [];
+
+function resizeBg() {
+  W = bgCanvas.width = window.innerWidth;
+  H = bgCanvas.height = window.innerHeight;
+}
+resizeBg();
+window.addEventListener('resize', resizeBg);
+
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * W; this.y = Math.random() * H;
+    this.vx = (Math.random()-0.5)*0.3; this.vy = (Math.random()-0.5)*0.3;
+    this.r = Math.random()*1.5+0.5;
+    this.alpha = Math.random()*0.5+0.1;
+    this.color = ['#4f8fff','#9333ea','#14b8a6','#10b981'][Math.floor(Math.random()*4)];
+  }
+  update() {
+    this.x += this.vx; this.y += this.vy;
+    if(this.x<0||this.x>W||this.y<0||this.y>H) this.reset();
+  }
+  draw() {
+    bgCtx.beginPath(); bgCtx.arc(this.x,this.y,this.r,0,Math.PI*2);
+    bgCtx.fillStyle = this.color + Math.floor(this.alpha*255).toString(16).padStart(2,'0');
+    bgCtx.fill();
+  }
+}
+
+for(let i=0;i<120;i++) particles.push(new Particle());
+
+function animBg() {
+  bgCtx.clearRect(0,0,W,H);
+  // Draw connections
+  for(let i=0;i<particles.length;i++) {
+    for(let j=i+1;j<particles.length;j++) {
+      const dx=particles[i].x-particles[j].x, dy=particles[i].y-particles[j].y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<120) {
+        bgCtx.beginPath();bgCtx.moveTo(particles[i].x,particles[i].y);
+        bgCtx.lineTo(particles[j].x,particles[j].y);
+        bgCtx.strokeStyle=`rgba(79,143,255,${(1-d/120)*0.08})`;
+        bgCtx.lineWidth=0.5;bgCtx.stroke();
+      }
+    }
+    particles[i].update();particles[i].draw();
+  }
+  requestAnimationFrame(animBg);
+}
+animBg();
+
+/* ── ANIME.JS HERO ANIMATIONS ── */
+anime.timeline({easing:'easeOutExpo'})
+  .add({targets:'#eyebrow',opacity:[0,1],translateY:[20,0],duration:800})
+  .add({targets:'#htitle',opacity:[0,1],translateY:[30,0],duration:900},'-=400')
+  .add({targets:'#hdesc',opacity:[0,1],translateY:[20,0],duration:700},'-=500')
+  .add({targets:'#hctas',opacity:[0,1],translateY:[20,0],duration:600},'-=400');
+
+/* ── COUNTER ANIMATION ── */
+function animCounter(el, target, suffix='', decimals=0) {
+  anime({targets:{val:0},val:target,duration:2000,easing:'easeOutExpo',
+    update(a){el.textContent = a.animatables[0].target.val.toFixed(decimals)+suffix}});
+}
+const counters = document.querySelectorAll('[id^="s"]');
+let countersDone = false;
+const statsObs = new IntersectionObserver(entries=>{
+  if(entries[0].isIntersecting && !countersDone) {
+    countersDone = true;
+    animCounter(document.getElementById('s1'),68,'k');
+    animCounter(document.getElementById('s2'),4.5,'B',1);
+    animCounter(document.getElementById('s3'),246,'');
+    animCounter(document.getElementById('s4'),6,'');
+    animCounter(document.getElementById('s5'),5,'');
+  }
+},{ threshold:0.3 });
+statsObs.observe(document.querySelector('.stats-strip'));
+
+/* ── SCROLL REVEAL ── */
+const reveals = document.querySelectorAll('.reveal');
+const revObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      anime({targets:e.target,opacity:[0,1],translateY:[32,0],duration:700,easing:'easeOutExpo'});
+    }
+  });
+},{threshold:0.1});
+reveals.forEach(r=>revObs.observe(r));
+
+/* ── CARD GLOW ON MOUSEMOVE ── */
+function cardGlow(e,el){
+  const rect=el.getBoundingClientRect();
+  el.style.setProperty('--mx',((e.clientX-rect.left)/rect.width*100)+'%');
+  el.style.setProperty('--my',((e.clientY-rect.top)/rect.height*100)+'%');
+}
+
+/* ── NAV SCROLL EFFECT ── */
+window.addEventListener('scroll',()=>{
+  document.querySelector('nav').style.background=
+    window.scrollY>50?'rgba(5,8,16,.95)':'rgba(5,8,16,.8)';
+});
+
+/* ── ANIME STAGGER for feature cards on reveal ── */
+const featObs = new IntersectionObserver(entries=>{
+  if(entries[0].isIntersecting) {
+    anime({targets:'.feat-card',opacity:[0,1],translateY:[40,0],delay:anime.stagger(80),
+           duration:600,easing:'easeOutExpo'});
+    featObs.disconnect();
+  }
+},{threshold:0.1});
+featObs.observe(document.querySelector('.feat-grid'));
+</script>
+</body>
+</html>

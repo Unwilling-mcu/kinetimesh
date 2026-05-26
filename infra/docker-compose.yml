@@ -1,0 +1,108 @@
+version: "3.9"
+
+services:
+
+  # ── FastAPI Backend ──
+  backend:
+    build: ../backend
+    container_name: kinetimesh-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://kinetimesh:kinetimesh@db:5432/kinetimesh
+      - REDIS_URL=redis://redis:6379
+      - MQTT_BROKER=mqtt
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-change-in-production}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ../ml:/app/ml
+      - model-weights:/app/models
+    networks: [kinetimesh]
+    restart: unless-stopped
+
+  # ── TimescaleDB (PostgreSQL + time-series) ──
+  db:
+    image: timescale/timescaledb:latest-pg16
+    container_name: kinetimesh-db
+    environment:
+      - POSTGRES_DB=kinetimesh
+      - POSTGRES_USER=kinetimesh
+      - POSTGRES_PASSWORD=kinetimesh
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U kinetimesh"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [kinetimesh]
+    restart: unless-stopped
+
+  # ── Redis (state cache + pub/sub) ──
+  redis:
+    image: redis:7-alpine
+    container_name: kinetimesh-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks: [kinetimesh]
+    restart: unless-stopped
+
+  # ── Mosquitto MQTT Broker ──
+  mqtt:
+    image: eclipse-mosquitto:2
+    container_name: kinetimesh-mqtt
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    networks: [kinetimesh]
+    restart: unless-stopped
+
+  # ── Grafana Dashboard ──
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: kinetimesh-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=kinetimesh
+      - GF_SECURITY_ADMIN_USER=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana-dashboards:/etc/grafana/provisioning/dashboards
+    depends_on: [db]
+    networks: [kinetimesh]
+    restart: unless-stopped
+
+  # ── Prometheus Metrics ──
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: kinetimesh-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prom-data:/prometheus
+    networks: [kinetimesh]
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  redis-data:
+  grafana-data:
+  prom-data:
+  model-weights:
+
+networks:
+  kinetimesh:
+    driver: bridge

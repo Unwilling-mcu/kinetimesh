@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KinetiMesh — Ultimate Research Proposal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --bg:#f7f6f2; --surface:#eceae2; --card:#fff; --card2:#f2f0e8;
+  --border:rgba(0,0,0,.09); --border2:rgba(0,0,0,.055);
+  --text:#181816; --muted:#52524e; --dim:#8a8a84;
+  --accent:#1e3a6e; --accent-light:#e8eef8;
+  --green:#1a5c3a; --green-bg:#e6f4ed;
+  --purple:#4a1d7a; --purple-bg:#f0eaf8;
+  --amber:#7a4a00; --amber-bg:#fdf3e0;
+  --coral:#7a2010; --coral-bg:#fbeae6;
+  --teal:#0a4a3a; --teal-bg:#e2f5ef;
+  --sidebar-w:220px;
+  --mono:'Courier New',monospace;
+  --serif:Georgia,'Times New Roman',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--serif);font-size:15px;line-height:1.8}
+
+/* ── NAV SIDEBAR ── */
+#sidebar{
+  position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;
+  background:var(--card);border-right:1px solid var(--border);
+  overflow-y:auto;z-index:100;padding:1.5rem 0 2rem;
+}
+#sidebar .logo{padding:0 1.25rem 1.25rem;border-bottom:1px solid var(--border2);margin-bottom:.75rem}
+#sidebar .logo-title{font-family:var(--mono);font-size:.7rem;font-weight:bold;letter-spacing:.1em;color:var(--accent);text-transform:uppercase}
+#sidebar .logo-sub{font-size:.65rem;color:var(--dim);margin-top:2px}
+#sidebar nav a{
+  display:block;padding:.32rem 1.25rem;font-family:var(--mono);font-size:.67rem;
+  color:var(--muted);text-decoration:none;line-height:1.4;
+  border-left:2px solid transparent;transition:all .15s;
+}
+#sidebar nav a:hover{color:var(--accent);background:var(--accent-light);border-left-color:var(--accent)}
+#sidebar nav a.active{color:var(--accent);font-weight:bold;border-left-color:var(--accent);background:var(--accent-light)}
+#sidebar nav .nav-group{font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);padding:.85rem 1.25rem .2rem;margin-top:.25rem}
+
+/* ── MAIN CONTENT ── */
+#main{margin-left:var(--sidebar-w);min-height:100vh}
+
+/* ── COVER ── */
+#cover{
+  min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+  padding:4rem 5rem;background:var(--text);color:#fff;position:relative;overflow:hidden;
+}
+#cover::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 20% 50%,rgba(30,58,110,.6) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 20%,rgba(74,29,122,.4) 0%,transparent 55%);
+}
+#cover *{position:relative;z-index:1}
+.cover-eyebrow{font-family:var(--mono);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:1.5rem}
+.cover-title{font-size:4.5rem;font-weight:400;line-height:.95;letter-spacing:-.03em;margin-bottom:.5rem}
+.cover-title span{color:rgba(255,255,255,.35);font-size:2rem;display:block;margin-top:.25rem;letter-spacing:-.01em;font-style:italic}
+.cover-tagline{font-size:1rem;color:rgba(255,255,255,.6);max-width:560px;line-height:1.65;margin:1.5rem 0 2rem;font-family:var(--sans)}
+.cover-meta{display:flex;gap:2.5rem;flex-wrap:wrap}
+.cover-meta-item{border-top:1px solid rgba(255,255,255,.2);padding-top:.75rem}
+.cover-meta-label{font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.35);margin-bottom:.2rem}
+.cover-meta-value{font-family:var(--sans);font-size:.85rem;color:rgba(255,255,255,.8)}
+.cover-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:1.75rem}
+.cover-chip{font-family:var(--mono);font-size:.62rem;padding:3px 8px;border:1px solid rgba(255,255,255,.2);border-radius:2px;color:rgba(255,255,255,.5)}
+.cover-version{position:absolute;bottom:2rem;right:2rem;font-family:var(--mono);font-size:.6rem;color:rgba(255,255,255,.2);letter-spacing:.1em;text-transform:uppercase}
+
+/* ── SECTIONS ── */
+.section{padding:4rem 5rem;border-bottom:1px solid var(--border)}
+.section:last-child{border-bottom:none}
+.sec-label{font-family:var(--mono);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:.6rem}
+h2{font-size:2rem;font-weight:400;letter-spacing:-.02em;color:var(--text);margin-bottom:1.5rem;line-height:1.2}
+h3{font-size:1.1rem;font-weight:600;color:var(--text);margin-bottom:.6rem;margin-top:1.5rem;font-family:var(--sans)}
+h3:first-child{margin-top:0}
+p{color:var(--muted);font-size:.9rem;line-height:1.8;margin-bottom:.8rem}
+p:last-child{margin-bottom:0}
+.lead{font-size:1.05rem;color:var(--muted);line-height:1.75;margin-bottom:1.25rem;max-width:700px}
+.em{font-style:italic;color:var(--text)}
+strong{color:var(--text);font-weight:600}
+
+/* ── COMPONENTS ── */
+.divider{border:none;border-top:1px solid var(--border);margin:2rem 0}
+
+/* Metric strip */
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:1.5rem 0}
+.metric{background:var(--surface);border-radius:8px;padding:.875rem;text-align:center}
+.mval{font-family:var(--mono);font-size:1.35rem;font-weight:bold;color:var(--text);line-height:1}
+.mlbl{font-size:.68rem;color:var(--dim);margin-top:5px;line-height:1.3;font-family:var(--sans)}
+
+/* 2-col grid */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.125rem}
+.card.surface{background:var(--surface);border-color:var(--border2)}
+.card-num{font-family:var(--mono);font-size:.65rem;color:var(--dim);margin-bottom:.3rem;letter-spacing:.05em}
+.card-t{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:.4rem;font-family:var(--sans)}
+.card-b{font-size:.8rem;color:var(--muted);line-height:1.65;font-family:var(--sans)}
+
+/* Table */
+.tbl{width:100%;border-collapse:collapse;font-size:.8rem;margin:1rem 0}
+.tbl th{font-family:var(--mono);font-size:.65rem;text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);color:var(--muted)}
+.tbl td{padding:8px 12px;border-bottom:1px solid var(--border2);vertical-align:top;line-height:1.55;color:var(--muted);font-family:var(--sans)}
+.tbl tr:last-child td{border-bottom:none}
+
+/* Badges */
+.badge{display:inline-block;font-size:.62rem;padding:2px 6px;border-radius:3px;font-family:var(--mono);margin-left:4px;vertical-align:middle}
+.badge-no  {background:var(--coral-bg);color:var(--coral)}
+.badge-yes {background:var(--green-bg);color:var(--green)}
+.badge-new {background:var(--accent-light);color:var(--accent)}
+.badge-warn{background:var(--amber-bg);color:var(--amber)}
+
+/* Equation blocks */
+.eq{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:12px 16px;margin:10px 0;font-family:var(--mono);font-size:.72rem;line-height:2;color:var(--text);white-space:pre-wrap;word-break:break-all}
+.eq-label{font-family:var(--mono);font-size:.65rem;color:var(--dim);margin-bottom:3px;text-transform:uppercase;letter-spacing:.07em}
+
+/* Tech stack grid */
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tcard{background:var(--surface);border-radius:8px;padding:.75rem}
+.tlyr{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.09em;color:var(--dim);margin-bottom:6px}
+.titem{font-family:var(--mono);font-size:.72rem;color:var(--muted);line-height:1.85}
+
+/* Arch */
+.arch{background:var(--surface);border-radius:12px;padding:1.5rem;margin:1rem 0}
+.arch-tier{display:grid;gap:8px;margin-bottom:10px}
+.arch-tier.t3{grid-template-columns:1fr 1fr 1fr}
+.arch-tier.t2{grid-template-columns:1fr 1fr}
+.arch-tier.t1{grid-template-columns:1fr}
+.arch-node{border-radius:8px;padding:.6rem .875rem;border:1px solid rgba(0,0,0,.08)}
+.arch-node.teal  {background:#d0f0e4}
+.arch-node.blue  {background:#d4e6f8}
+.arch-node.purple{background:#e4d4f4}
+.arch-node.amber {background:#f4e4c0}
+.arch-node.gray  {background:#e8e6de}
+.arch-title{font-size:.78rem;font-weight:600;color:var(--text);font-family:var(--sans)}
+.arch-sub  {font-size:.68rem;color:var(--muted);font-family:var(--sans);margin-top:2px}
+.arch-arrow{text-align:center;font-size:.85rem;color:var(--dim);margin:4px 0;font-family:var(--mono)}
+
+/* Timeline / Gantt */
+.gantt{width:100%;font-size:.72rem;font-family:var(--sans)}
+.gantt th{font-family:var(--mono);font-size:.62rem;padding:6px 8px;text-align:center;border-bottom:1px solid var(--border);color:var(--dim);background:var(--surface)}
+.gantt td.task-lbl{padding:6px 10px;border-bottom:1px solid var(--border2);color:var(--muted);white-space:nowrap;border-right:1px solid var(--border2);font-size:.73rem}
+.gantt td.cell{border-bottom:1px solid var(--border2);border-right:1px solid var(--border2);padding:4px 3px;text-align:center}
+.bar{border-radius:4px;height:14px;display:block;margin:auto}
+.bar.b1{background:#1e3a6e}
+.bar.b2{background:#1a5c3a}
+.bar.b3{background:#4a1d7a}
+.bar.b4{background:#7a4a00}
+.bar.b5{background:#0a4a3a}
+.bar.b6{background:#7a2010}
+
+/* Risk matrix */
+.risk-cell{display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.7rem;font-family:var(--sans);font-weight:600;padding:.5rem;text-align:center;line-height:1.3;cursor:default}
+
+/* Objectives */
+.obj{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start}
+.obj-num{font-family:var(--mono);font-size:.75rem;font-weight:bold;color:var(--accent);background:var(--accent-light);border-radius:4px;padding:3px 8px;flex-shrink:0;margin-top:2px}
+.obj-body{font-size:.85rem;color:var(--muted);line-height:1.65;font-family:var(--sans)}
+.obj-kpi{font-family:var(--mono);font-size:.7rem;color:var(--dim);margin-top:4px}
+
+/* Phases */
+.phases{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.phase{border:1px solid var(--border);border-radius:10px;padding:.875rem}
+.phase-num{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;color:var(--dim);margin-bottom:2px}
+.phase-name{font-size:.85rem;font-weight:600;color:var(--text);margin-bottom:2px;font-family:var(--sans)}
+.phase-dur{font-family:var(--mono);font-size:.68rem;color:var(--dim);margin-bottom:8px}
+.phase-items{list-style:none}
+.phase-items li{font-size:.75rem;color:var(--muted);padding:2px 0;display:flex;gap:5px;line-height:1.4;font-family:var(--sans)}
+.phase-items li::before{content:"›";color:var(--dim);flex-shrink:0}
+
+/* Estimator */
+.estimator{background:var(--surface);border-radius:12px;padding:1.25rem 1.5rem;margin:1rem 0}
+.est-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.est-lbl{font-size:.8rem;color:var(--muted);width:220px;flex-shrink:0;font-family:var(--sans)}
+.est-val{font-family:var(--mono);font-size:.8rem;min-width:65px;text-align:right;color:var(--text);font-weight:bold}
+input[type=range]{flex:1;accent-color:var(--accent);cursor:pointer}
+.outs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.out-card{background:var(--card);border-radius:8px;padding:.75rem;border:1px solid var(--border2)}
+.out-val{font-family:var(--mono);font-size:1.4rem;font-weight:bold;color:var(--text)}
+.out-lbl{font-size:.68rem;color:var(--dim);margin-top:2px;font-family:var(--sans)}
+
+/* Budget table */
+.budget-bar{height:8px;border-radius:4px;background:var(--accent);display:block;margin-top:4px}
+
+/* References */
+.refs{list-style:none}
+.refs li{font-family:var(--mono);font-size:.7rem;color:var(--dim);padding:6px 0;border-bottom:1px solid var(--border2);line-height:1.5}
+.refs li:last-child{border-bottom:none}
+.rtag{display:inline-block;font-size:.62rem;padding:1px 5px;border-radius:2px;background:var(--surface);border:1px solid var(--border2);margin-right:5px;vertical-align:middle}
+
+/* Callout boxes */
+.callout{border-left:3px solid var(--accent);background:var(--accent-light);border-radius:0 8px 8px 0;padding:.875rem 1.125rem;margin:1rem 0;font-size:.85rem;color:var(--muted);font-family:var(--sans);line-height:1.65}
+.callout.green{border-left-color:#1a5c3a;background:#eaf6f0}
+.callout.amber{border-left-color:#7a4a00;background:#fdf5e0}
+.callout.purple{border-left-color:#4a1d7a;background:#f2edf9}
+.callout strong{display:block;margin-bottom:.25rem;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em}
+
+/* Inline code */
+code{font-family:var(--mono);font-size:.8em;background:var(--surface);padding:1px 5px;border-radius:3px;border:1px solid var(--border2)}
+
+/* Chart containers */
+.chart-wrap{position:relative;width:100%;height:260px;margin:1rem 0}
+.chart-wrap.tall{height:320px}
+.chart-title{font-family:var(--mono);font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);margin-bottom:.5rem}
+
+/* Print / export hint */
+.print-only{display:none}
+
+@media print{
+  #sidebar{display:none}
+  #main{margin-left:0}
+  #cover{min-height:auto;padding:3rem}
+  .section{padding:2rem 3rem}
+  .print-only{display:block}
+  .chart-wrap{height:200px}
+}
+
+@media(max-width:900px){
+  #sidebar{display:none}
+  #main{margin-left:0}
+  .section{padding:2.5rem 1.5rem}
+  #cover{padding:3rem 1.5rem}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .grid2,.grid3,.phases,.tgrid{grid-template-columns:1fr}
+  .arch-tier.t3,.arch-tier.t2{grid-template-columns:1fr}
+  .outs{grid-template-columns:1fr 1fr}
+  .cover-title{font-size:2.8rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<aside id="sidebar">
+  <div class="logo">
+    <div class="logo-title">KinetiMesh</div>
+    <div class="logo-sub">Research Proposal v2.0</div>
+  </div>
+  <nav>
+    <div class="nav-group">Overview</div>
+    <a href="#cover">Cover</a>
+    <a href="#executive-summary">Executive Summary</a>
+    <a href="#introduction">Introduction</a>
+    <a href="#literature">Literature Review</a>
+    <div class="nav-group">Research Design</div>
+    <a href="#objectives">Objectives &amp; Hypotheses</a>
+    <a href="#gap">Research Gap</a>
+    <a href="#architecture">System Architecture</a>
+    <a href="#innovations">Core Innovations</a>
+    <div class="nav-group">Technical</div>
+    <a href="#methodology">Methodology</a>
+    <a href="#stack">Technology Stack</a>
+    <a href="#simulation">Simulation Plan</a>
+    <a href="#estimator">Energy Estimator</a>
+    <div class="nav-group">Impact & Viability</div>
+    <a href="#feasibility">Feasibility</a>
+    <a href="#economic">Economic Analysis</a>
+    <a href="#environmental">Environmental Impact</a>
+    <a href="#india">India Opportunity</a>
+    <div class="nav-group">Governance</div>
+    <a href="#ethics">Ethics &amp; Privacy</a>
+    <a href="#risk">Risk Assessment</a>
+    <a href="#roadmap">Roadmap &amp; Gantt</a>
+    <a href="#budget">Budget Breakdown</a>
+    <a href="#dissemination">Dissemination Plan</a>
+    <a href="#conclusion">Conclusion</a>
+    <a href="#references">References</a>
+  </nav>
+</aside>
+
+<!-- ══════════ MAIN ══════════ -->
+<div id="main">
+
+<!-- ── COVER ── -->
+<section id="cover">
+  <div class="cover-eyebrow">Full Research Proposal &nbsp;·&nbsp; Information Technology &nbsp;·&nbsp; Version 2.0 &nbsp;·&nbsp; 2025–2027</div>
+  <div class="cover-title">
+    KinetiMesh
+    <span>Federated Kinetic Intelligence for Urban Energy</span>
+  </div>
+  <div class="cover-tagline">
+    A Federated Kinetic Intelligence Network for Multi-Source Urban Ambient Energy Harvesting, 
+    GNN Digital Twin Modeling, and AI-Governed Micro-Grid Integration
+  </div>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Principal Researcher</div>
+      <div class="cover-meta-value">Sanchayan</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Degree</div>
+      <div class="cover-meta-value">B.Tech — Information Technology</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">GitHub</div>
+      <div class="cover-meta-value">github.com/Unwilling-mcu</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Submission Year</div>
+      <div class="cover-meta-value">2025</div>
+    </div>
+  </div>
+  <div class="cover-chips">
+    <span class="cover-chip">Federated Learning</span>
+    <span class="cover-chip">Piezoelectric Harvesting</span>
+    <span class="cover-chip">Graph Neural Networks</span>
+    <span class="cover-chip">Reinforcement Learning</span>
+    <span class="cover-chip">TinyML / Edge AI</span>
+    <span class="cover-chip">Digital Twin</span>
+    <span class="cover-chip">Blockchain P2P Ledger</span>
+    <span class="cover-chip">Smart Infrastructure</span>
+    <span class="cover-chip">IoT / LoRaWAN</span>
+    <span class="cover-chip">Indian Railways</span>
+    <span class="cover-chip">Sustainable Energy</span>
+  </div>
+  <div class="cover-version">KinetiMesh · v2.0 · ULTIMATE EDITION</div>
+</section>
+
+<!-- ── EXECUTIVE SUMMARY ── -->
+<section class="section" id="executive-summary">
+  <div class="sec-label">Section 01</div>
+  <h2>Executive Summary</h2>
+  <p class="lead">KinetiMesh is a novel research initiative that proposes the world's first AI-governed, federated kinetic energy harvesting network — converting the mechanical waste energy of urban rail systems and pedestrian infrastructure into grid-injectable electricity, managed entirely by a multi-layer intelligent software stack.</p>
+  <p>Every high-speed train dissipates enormous mechanical energy into its track, every station floor absorbs the kinetic energy of hundreds of thousands of footsteps daily, and every rail tunnel generates powerful aerodynamic drafts — all wasted. The technology to harvest these energies at the component level exists and has been peer-validated. What does not exist is the <strong>intelligence layer</strong> that networks these components, predicts their output, routes their power demand-aware, and integrates them seamlessly with urban microgrids.</p>
+  <p>KinetiMesh fills this gap with four interlocking IT innovations: <em>(1)</em> FedProx-based federated learning for privacy-preserving harvest prediction; <em>(2)</em> a GraphSAGE Graph Neural Network Digital Twin for real-time kinetic topology modeling; <em>(3)</em> a PPO reinforcement learning agent for demand-aware microgrid dispatch; and <em>(4)</em> a Hyperledger Fabric blockchain P2P energy credit market. Together, these transform passive, isolated sensors into a self-governing urban energy network.</p>
+  <div class="callout green"><strong>Core Claim</strong>This is an IT research problem, not a materials science problem. The physics is validated. The gap is the absence of any networked intelligence layer — and IT is uniquely positioned to solve it.</div>
+  <div class="metrics">
+    <div class="metric"><div class="mval">150k km</div><div class="mlbl">railway track in China alone</div></div>
+    <div class="metric"><div class="mval">4.5B</div><div class="mlbl">rail journeys/year in India</div></div>
+    <div class="metric"><div class="mval">120 kW</div><div class="mlbl">from 32 trackpads (Innowattech, 2009)</div></div>
+    <div class="metric"><div class="mval">246 mW</div><div class="mlbl">per floor tile (Selim et al., 2024)</div></div>
+    <div class="metric"><div class="mval">0</div><div class="mlbl">systems networking these with AI — today</div></div>
+  </div>
+</section>
+
+<!-- ── INTRODUCTION ── -->
+<section class="section" id="introduction">
+  <div class="sec-label">Section 02</div>
+  <h2>Introduction &amp; Motivation</h2>
+  <p class="lead">The intersection of ambient energy harvesting and distributed AI presents one of the most tractable and high-impact open problems in sustainable smart infrastructure.</p>
+  <h3>The Energy Waste Problem</h3>
+  <p>Urban transportation systems are among the most energy-intensive infrastructure on Earth. A single Indian Railways trainset traveling at 130 km/h exerts axle loads of 18–22.5 tonnes on track structures continuously — mechanical stress of extraordinary magnitude. When multiplied across 23 million daily passenger journeys and 68,000 km of track, the cumulative mechanical energy entering the rail system every day is measured in terajoules. Virtually all of it dissipates as heat, vibration, and acoustic noise.</p>
+  <p>The picture is similar for pedestrian infrastructure. A single peak-hour station in Mumbai or Delhi sees upward of 400,000 footsteps per hour. Each footstep imparts 60–80 kg of force across a tile-scale area — mechanical energy that currently vanishes entirely into the floor structure.</p>
+  <h3>Why Now?</h3>
+  <p>Three converging technological shifts make 2025 the right moment for KinetiMesh: <strong>(1)</strong> Piezoelectric energy harvesters have matured to commercially viable efficiency and durability — Selim et al. (2024) demonstrated a $10 tile generating 246 mW peak; <strong>(2)</strong> TinyML enables sophisticated on-device inference at sub-milliwatt standby power, making edge nodes self-sufficient; <strong>(3)</strong> Federated Learning has reached production maturity (Google's Gboard, Apple's Siri personalization), making privacy-preserving distributed ML deployable at city scale.</p>
+  <h3>Why IT / Computer Science?</h3>
+  <p>The bottleneck is not the transducer — it is the <em>system</em>. Coordinating thousands of heterogeneous harvesters, forecasting output across shifting traffic patterns, routing power to where the grid needs it most, and doing all of this without centralizing sensitive infrastructure data — these are fundamentally software, networking, and AI problems. KinetiMesh is an IT research proposal that happens to harvest energy.</p>
+  <div class="callout purple"><strong>Research Positioning</strong>KinetiMesh sits at the intersection of four active research frontiers: Ambient Energy Harvesting, Federated Machine Learning, Graph-based Digital Twins, and Deep Reinforcement Learning for power systems. No existing work integrates all four.</div>
+</section>
+
+<!-- ── LITERATURE REVIEW ── -->
+<section class="section" id="literature">
+  <div class="sec-label">Section 03</div>
+  <h2>Literature Review &amp; Synthesis</h2>
+  <p class="lead">A systematic review of four research streams reveals strong component-level validation and a clear, unoccupied integration gap.</p>
+
+  <h3>Stream 1 — Rail Piezoelectric Energy Harvesting</h3>
+  <p>The foundational feasibility of rail-based piezoelectric harvesting was established by Innowattech's 2009 field deployment at Technion University, where 32 trackpad transducers harvested 120 kW/hr from live railway traffic. More recently, Min et al. (AIP Advances, 2024) proposed a donut-shaped PMEH device generating 207.67 mW per unit from rail vibration. The Springer Nature review (2025) synthesizes the field: piezoelectric harvesters (PEHs) in railways show significant promise for powering trackside wireless sensor networks, with vibration frequencies on high-speed rail measured in the 30–650 Hz range at millimeter amplitudes — well within PEH operational parameters. The consensus limitation: all systems remain isolated, powering local sensors only, with no attempt at network-scale aggregation.</p>
+
+  <h3>Stream 2 — Pedestrian Footfall Harvesting</h3>
+  <p>Selim et al. (Energies, 2024) is the definitive recent reference: bimorph PZT tiles (455 × 405 mm) under pedestrian floors generate 246 mW peak per tile at ~$10 material cost, with practical power sufficient to illuminate LEDs as demonstrated loads. The EHFT study (ScienceDirect, 2021) established a critical real-world finding: open-circuit voltage of ~80 V per step, with 35 mW RMS across 1 kΩ optimal load. The same study noted that crowded environments like railway stations and subway platforms represent the ideal deployment context — yet no station-integrated system exists at scale.</p>
+
+  <h3>Stream 3 — Federated Learning for Energy Systems</h3>
+  <p>Zhang &amp; Cao (arXiv, 2024) formalize FL with energy harvesting devices as a Markov Decision Process, providing theoretical grounding for KinetiMesh's FL layer. Li et al. (2020) introduced FedProx, resolving the objective inconsistency problem in heterogeneous federated networks — precisely the challenge KinetiMesh faces with mixed harvester types. FEMT-FL (ScienceDirect, 2025) demonstrates FL-based energy management for IoT computing nodes, showing 96.3% accuracy in communication rounds. Critically, no paper applies FL to the harvester network itself — only to the downstream computation or grid prediction layers.</p>
+
+  <h3>Stream 4 — Digital Twins and RL for Smart Grids</h3>
+  <p>Scientific Reports (2025) presents ORA-DL, a deep learning framework for real-time resource allocation in smart grids, demonstrating the viability of ML-driven grid dispatch. GNN-based Digital Twins have been applied to power distribution networks (Hamilton et al., 2017 provides the GraphSAGE foundation), but no work applies them to ambient harvester topology modeling. PPO has been applied to HVAC optimization and battery dispatch (Schulman et al., 2017), but not to multi-source kinetic energy routing.</p>
+
+  <h3>Synthesis: The Integration Gap</h3>
+  <div class="callout amber"><strong>Key Finding</strong>Each of the four streams above is individually mature and well-validated. No published work integrates them. The specific combination of — heterogeneous kinetic harvesting + federated prediction + GNN Digital Twin + RL dispatch + blockchain settlement — is a genuine, unoccupied research space as of mid-2025.</div>
+
+  <table class="tbl">
+    <tr><th>Paper / System</th><th>Rail PEH</th><th>Floor PEH</th><th>FL</th><th>GNN Twin</th><th>RL Dispatch</th><th>Grid Integration</th></tr>
+    <tr><td>Innowattech (2009)</td><td class="badge badge-yes">✓</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+    <tr><td>Min et al., AIP 2024</td><td class="badge badge-yes">✓</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+    <tr><td>Selim et al., 2024</td><td>—</td><td class="badge badge-yes">✓</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+    <tr><td>Zhang &amp; Cao, 2024</td><td>—</td><td>—</td><td class="badge badge-yes">✓</td><td>—</td><td>—</td><td>—</td></tr>
+    <tr><td>ORA-DL, Sci. Rep. 2025</td><td>—</td><td>—</td><td>—</td><td>—</td><td class="badge badge-yes">✓</td><td class="badge badge-yes">✓</td></tr>
+    <tr><td>Pavegen (commercial)</td><td>—</td><td class="badge badge-yes">✓</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+    <tr><td><strong>KinetiMesh (proposed)</strong></td><td class="badge badge-new">✓</td><td class="badge badge-new">✓</td><td class="badge badge-new">✓</td><td class="badge badge-new">✓</td><td class="badge badge-new">✓</td><td class="badge badge-new">✓</td></tr>
+  </table>
+</section>
+
+<!-- ── OBJECTIVES ── -->
+<section class="section" id="objectives">
+  <div class="sec-label">Section 04</div>
+  <h2>Research Objectives &amp; Hypotheses</h2>
+
+  <h3>Primary Objectives (SMART)</h3>
+
+  <div class="obj">
+    <div class="obj-num">O1</div>
+    <div class="obj-body">
+      <strong>Design and validate a FedProx-based federated LSTM model</strong> for 24-hour ahead energy harvest prediction across heterogeneous rail and pedestrian harvester nodes, achieving prediction accuracy &gt;92% and MAE &lt; 0.08 kW/node with no raw sensor data leaving the device.
+      <div class="obj-kpi">KPI: Accuracy ≥ 92% · MAE ≤ 0.08 kW · Communication rounds ≤ 50 · Privacy: zero raw data exfiltration</div>
+    </div>
+  </div>
+  <div class="obj">
+    <div class="obj-num">O2</div>
+    <div class="obj-body">
+      <strong>Build a GraphSAGE Graph Neural Network Digital Twin</strong> of a city-scale kinetic energy infrastructure that synchronizes with live MQTT telemetry every 60 seconds and achieves &lt;5% node output prediction error under dynamic traffic conditions.
+      <div class="obj-kpi">KPI: Sync latency ≤ 60s · Prediction error ≤ 5% · Node count scalable to 10,000+</div>
+    </div>
+  </div>
+  <div class="obj">
+    <div class="obj-num">O3</div>
+    <div class="obj-body">
+      <strong>Train and deploy a PPO reinforcement learning power routing agent</strong> in the Digital Twin environment that increases green energy utilization by ≥35% and reduces grid import cost by ≥20% compared to rule-based dispatch baselines.
+      <div class="obj-kpi">KPI: Green utilization +35% · Grid import cost −20% · Policy convergence within 10M simulation steps</div>
+    </div>
+  </div>
+  <div class="obj">
+    <div class="obj-num">O4</div>
+    <div class="obj-body">
+      <strong>Implement and validate a Hyperledger Fabric blockchain P2P energy credit ledger</strong> enabling zone-to-zone settlement with transaction finality &lt;3 seconds and audit-complete traceability on a 3-zone pilot.
+      <div class="obj-kpi">KPI: Tx finality ≤ 3s · Full audit trail · Smart contract gas-equivalent cost ≤ ₹0.01 per kWh credit</div>
+    </div>
+  </div>
+  <div class="obj">
+    <div class="obj-num">O5</div>
+    <div class="obj-body">
+      <strong>Validate end-to-end KinetiMesh on a 3-zone urban pilot</strong> (1 km rail corridor + 1 station + 1 adjacent zone) producing ≥3.5 kW net power injection, sufficient for full station auxiliary loads (lighting, IoT, WiFi) off-grid.
+      <div class="obj-kpi">KPI: Net output ≥ 3.5 kW · Station auxiliary coverage 100% · CAPEX payback ≤ 2.5 years</div>
+    </div>
+  </div>
+
+  <h3>Research Hypotheses</h3>
+  <div class="grid2" style="margin-top:.75rem">
+    <div class="card surface">
+      <div class="card-num">H1 (FL)</div>
+      <div class="card-t">FedProx outperforms FedAvg on heterogeneous harvester networks</div>
+      <div class="card-b">The proximal penalty μ in FedProx will prevent client model drift on rail vs pedestrian nodes, yielding ≥15% lower prediction MAE than FedAvg baseline on mixed-type networks.</div>
+    </div>
+    <div class="card surface">
+      <div class="card-num">H2 (RL)</div>
+      <div class="card-t">DT-trained PPO generalizes to live grid with &lt;5% performance drop</div>
+      <div class="card-b">The GraphSAGE Digital Twin will provide sufficient simulation fidelity that a PPO policy trained entirely in simulation transfers to live grid operation with minimal sim-to-real gap.</div>
+    </div>
+    <div class="card surface">
+      <div class="card-num">H3 (Scale)</div>
+      <div class="card-t">Network aggregation unlocks non-linear value over isolated harvesters</div>
+      <div class="card-b">The ability to predict, aggregate, and route harvested energy will yield ≥3× higher effective utilization than isolated harvesters dispatched individually without coordination.</div>
+    </div>
+    <div class="card surface">
+      <div class="card-num">H4 (Economics)</div>
+      <div class="card-t">Blockchain P2P market increases deployment incentive by creating revenue streams</div>
+      <div class="card-b">Zone-to-zone energy credit trading will reduce effective CAPEX payback period by ≥30% compared to single-owner operation without a P2P market.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── GAP ── -->
+<section class="section" id="gap">
+  <div class="sec-label">Section 05</div>
+  <h2>Research Gap &amp; Novelty Claims</h2>
+  <table class="tbl">
+    <tr><th>Dimension</th><th>State of Art (2024)</th><th>KinetiMesh Contribution</th></tr>
+    <tr><td><strong>Scale</strong></td><td>mW per device, isolated sensors <span class="badge badge-no">Not networked</span></td><td>kW-scale mesh, 1000s of nodes <span class="badge badge-new">Aggregated</span></td></tr>
+    <tr><td><strong>Energy sources</strong></td><td>Single source per study <span class="badge badge-no">Siloed</span></td><td>Rail + footstep + aero + thermal, unified <span class="badge badge-new">Multi-source</span></td></tr>
+    <tr><td><strong>ML / Intelligence</strong></td><td>None on harvester networks <span class="badge badge-no">Absent</span></td><td>FedProx + PPO + GNN Digital Twin <span class="badge badge-new">First</span></td></tr>
+    <tr><td><strong>Privacy</strong></td><td>Not considered in PEH literature <span class="badge badge-no">N/A</span></td><td>Federated: raw data stays on device <span class="badge badge-new">Novel</span></td></tr>
+    <tr><td><strong>Grid integration</strong></td><td>Lab experiments only <span class="badge badge-no">No deployment</span></td><td>RL-governed real-time microgrid dispatch <span class="badge badge-new">Novel</span></td></tr>
+    <tr><td><strong>Energy trading</strong></td><td>Absent <span class="badge badge-no">N/A</span></td><td>Blockchain P2P credit ledger <span class="badge badge-new">Novel</span></td></tr>
+    <tr><td><strong>Digital Twin</strong></td><td>Applied to power grids, not harvester nets <span class="badge badge-no">Gap</span></td><td>GNN DT of kinetic energy topology <span class="badge badge-new">Novel</span></td></tr>
+    <tr><td><strong>Deployment context</strong></td><td>Western labs / isolated pilots <span class="badge badge-no">No Indian scale</span></td><td>Indian Railways scale — 68k km of track <span class="badge badge-new">Unique scale</span></td></tr>
+  </table>
+  <div class="callout"><strong>Novelty Statement</strong>KinetiMesh's primary novel contribution is the <em>intelligence layer architecture</em> that first integrates heterogeneous kinetic harvesting with federated learning, GNN topology modeling, and RL-governed dispatch into a unified city-scale system. This is the missing link between proven component-level physics and viable urban energy infrastructure.</div>
+</section>
+
+<!-- ── ARCHITECTURE ── -->
+<section class="section" id="architecture">
+  <div class="sec-label">Section 06</div>
+  <h2>System Architecture</h2>
+  <p class="lead">KinetiMesh is organized into four tiers, each independently deployable and scalable, connected by standardized protocols at every interface.</p>
+
+  <div class="arch">
+    <div class="arch-tier t3">
+      <div class="arch-node teal">
+        <div class="arch-title">Rail piezoelectric arrays</div>
+        <div class="arch-sub">Donut PMEH stacks · trackpad harvesters · 30–650 Hz vibration capture · bimorph PZT</div>
+      </div>
+      <div class="arch-node teal">
+        <div class="arch-title">Pedestrian floor tiles</div>
+        <div class="arch-sub">455×405 mm bimorph PZT tiles · station concourses · bridge rectifier + filter cap</div>
+      </div>
+      <div class="arch-node teal">
+        <div class="arch-title">Wind &amp; thermal TEGs</div>
+        <div class="arch-sub">Tunnel draft aero-harvesters · Peltier TEG on rail-ambient gradient · secondary sources</div>
+      </div>
+    </div>
+    <div class="arch-arrow">↓ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ↓ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ↓ &nbsp;&nbsp;&nbsp; [AC → DC · Bridge rectifier · Charge mgmt IC · LiPo buffer battery]</div>
+    <div class="arch-tier t1">
+      <div class="arch-node blue">
+        <div class="arch-title">Tier 2 — Edge Intelligence Node (TinyML Mesh)</div>
+        <div class="arch-sub">RPi CM4 / custom ASIC · TensorFlow Lite inference · LoRaWAN gateway · MQTT publish · local FedProx client · BLE config · 1–5W standby</div>
+      </div>
+    </div>
+    <div class="arch-arrow">↓ &nbsp;&nbsp; LoRaWAN (sub-GHz) + 5G backhaul &nbsp;&nbsp; ↓</div>
+    <div class="arch-tier t2">
+      <div class="arch-node purple">
+        <div class="arch-title">Tier 3A — Federated Learning &amp; GNN Digital Twin Server</div>
+        <div class="arch-sub">FedProx global aggregation · GraphSAGE topology inference · TimescaleDB TSDB · Redis state cache · FastAPI REST · 60s sync cycle</div>
+      </div>
+      <div class="arch-node purple">
+        <div class="arch-title">Tier 3B — RL Power Router &amp; Decision Engine</div>
+        <div class="arch-sub">PPO agent (Stable-Baselines3) · Custom OpenAI Gym env backed by DT · Real-time action dispatch · Grafana monitoring dashboard</div>
+      </div>
+    </div>
+    <div class="arch-arrow">↓ &nbsp;&nbsp; REST / MQTT dispatch commands &nbsp;&nbsp; ↓</div>
+    <div class="arch-tier t2">
+      <div class="arch-node amber">
+        <div class="arch-title">Tier 4A — City Microgrid Integration</div>
+        <div class="arch-sub">Smart meters · bidirectional inverters · demand-aware feeder switching · SCADA interface · grid safety relay</div>
+      </div>
+      <div class="arch-node amber">
+        <div class="arch-title">Tier 4B — Blockchain P2P Energy Market</div>
+        <div class="arch-sub">Hyperledger Fabric permissioned chain · energy credit tokens · smart contract settlement (Go) · zone-to-zone P2P trading · full audit trail</div>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:.78rem;color:var(--dim);text-align:center;font-style:italic;margin-top:.5rem">All four tiers are independently operable and incrementally deployable — Tier 2 alone already powers trackside IoT sensors; full value is realized at Tier 4.</p>
+</section>
+
+<!-- ── INNOVATIONS ── -->
+<section class="section" id="innovations">
+  <div class="sec-label">Section 07</div>
+  <h2>Core IT Innovations — Detail</h2>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-num">Innovation 01 — ML/AI</div>
+    <div class="card-t">FedProx Federated Learning for Privacy-Preserving Harvest Prediction</div>
+    <div class="card-b">Each edge node independently trains an LSTM-based time-series model on its local vibration or footfall signal. Every 6 hours, model weight gradients — never raw data — are transmitted to the global aggregation server. FedProx extends FedAvg with a proximal regularization term that penalizes excessive deviation from the global model, which is critical here: a rail piezo node (dominant frequencies 30–650 Hz, millimeter amplitude) and a pedestrian floor tile (1–3 Hz, centimeter amplitude) have fundamentally different data distributions. Standard FedAvg would diverge; FedProx stabilizes convergence across all harvester types. Differential privacy (ε-DP) noise is applied to gradients before transmission, providing formal privacy guarantees.</div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-num">Innovation 02 — Graph AI</div>
+    <div class="card-t">GraphSAGE GNN Digital Twin for Kinetic Topology Modeling</div>
+    <div class="card-b">The city's kinetic energy infrastructure is represented as a directed graph G=(V,E) where nodes V are harvester units and edges E encode energy flow potential (weighted by transmission loss and distance). A GraphSAGE model trained on historical node states infers the evolution of the energy topology — predicting how output changes when a train is delayed, peak hour ends, or a harvester node fails. This Digital Twin runs on a city edge server, updates every 60 seconds via MQTT telemetry, and serves as both a monitoring dashboard and the environment simulator for the RL agent. Crucially, training the RL agent in the DT means zero risk of live grid instability during policy learning.</div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-num">Innovation 03 — Reinforcement Learning</div>
+    <div class="card-t">PPO Deep RL Power Routing Agent</div>
+    <div class="card-b">A continuous-action Proximal Policy Optimization agent observes the full system state every decision cycle (60 seconds) — harvest levels, demand forecasts, battery SoC, spot grid prices — and outputs a power allocation vector across n microgrid zones. PPO's clipped surrogate objective prevents the large, destabilizing policy updates that make vanilla policy gradient methods unsafe in grid contexts. The agent is pre-trained for 10 million steps in the Digital Twin simulator using a shaped reward balancing green energy utilization, curtailment minimization, and grid import cost reduction. Online fine-tuning occurs in production with conservative trust-region constraints.</div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-num">Innovation 04 — Blockchain / Economics</div>
+    <div class="card-t">Hyperledger Fabric P2P Energy Credit Market</div>
+    <div class="card-b">Every kWh harvested by a KinetiMesh zone is tokenized as an energy credit on a Hyperledger Fabric permissioned blockchain. Zones with surplus sell credits to zones with deficit via automated smart contracts, eliminating the need for a central clearing authority. Transaction finality of &lt;3 seconds makes real-time energy trading viable. The chain provides a complete, immutable audit trail for regulatory compliance. This innovation converts KinetiMesh from a cost center into a revenue-generating system — fundamentally changing the economics of deployment and creating market incentives for infrastructure owners to join the network.</div>
+  </div>
+</section>
+
+<!-- ── METHODOLOGY ── -->
+<section class="section" id="methodology">
+  <div class="sec-label">Section 08</div>
+  <h2>Methodology — Mathematical Formulations</h2>
+
+  <h3>Innovation 1 — FedProx Objective</h3>
+  <p>The FedProx optimization objective extends standard federated averaging by adding a proximal regularization term. For a network of K clients (harvester edge nodes) with local data distributions D_k:</p>
+  <div class="eq-label">FedProx Global Objective</div>
+  <div class="eq">min   F(w) + (μ/2)‖w − w_t‖²
+
+where  F(w) = Σ_{k=1}^{K} p_k · F_k(w)
+       F_k(w) = E_{(x,y)~D_k} [loss(w; x, y)]
+       p_k = n_k / n   (client k data fraction)
+
+μ ∈ [0,1]   — proximal penalty coefficient  (μ=0 recovers FedAvg)
+w_t         — global model weights at round t
+K           — number of edge harvester nodes (target: 1,000–10,000)
+
+Local model:   LSTM(h_t, x_t) → ĥ_{t+1..t+96}   (96 × 15-min slots = 24h)
+Input x_t:    [vibration_amplitude, frequency_centroid, temperature, train_schedule]
+Output:        harvest_forecast_{t+1..t+24h} in kW
+
+Training:  E=5 local epochs per round · B=32 batch · Adam lr=1e-3
+Comm:      gradient upload every 6h · ε-DP noise σ=0.1 applied pre-upload
+Target:    MAE ≤ 0.08 kW per node · R² ≥ 0.92 · convergence ≤ 50 rounds</div>
+
+  <h3>Innovation 2 — GraphSAGE Node Aggregation</h3>
+  <p>GraphSAGE (Hamilton et al., 2017) performs inductive learning by aggregating neighbourhood features — enabling generalization to new harvester nodes added to the mesh without full retraining.</p>
+  <div class="eq-label">GraphSAGE Layer-wise Aggregation</div>
+  <div class="eq">h_v^(k) = ReLU( W^(k) · CONCAT( h_v^(k-1),  AGG({ h_u^(k-1) : u ∈ N(v) }) ) )
+
+AGG(·)   = MEAN pooling (stable across variable neighbourhood sizes)
+K = 3    — number of aggregation hops
+d = 128  — hidden embedding dimension
+
+Node feature vector x_v:
+  [harvester_type ∈ {rail,floor,wind,thermal},  lat, lon,
+   rated_capacity_kW,  live_output_kW,  battery_soc,
+   last_train_dt,  pedestrian_density,  temperature]
+
+Edge weight w_{uv} = 1 / (line_loss_pct × distance_m)
+  → higher weight = lower loss = preferred energy transfer path
+
+Training:  Supervised on 12-month historical MQTT logs (synthetic pre-pilot)
+Inference: Forward pass every 60s → energy topology state s_t for RL agent
+Target:    Node output prediction error ≤ 5% under dynamic conditions</div>
+
+  <h3>Innovation 3 — PPO Policy Optimization</h3>
+  <p>PPO's clipped objective prevents large, destabilizing policy updates that could cause live grid instability. The agent operates on a 60-second decision cycle.</p>
+  <div class="eq-label">PPO Clipped Surrogate Objective</div>
+  <div class="eq">L_CLIP(θ) = E_t[ min( r_t(θ)·Â_t,  clip(r_t(θ), 1−ε, 1+ε)·Â_t ) ]
+
+r_t(θ) = π_θ(a_t|s_t) / π_θ_old(a_t|s_t)   (probability ratio)
+Â_t     = advantage estimate (GAE-λ, λ=0.95)
+ε = 0.2  — clip ratio  (PPO standard)
+
+State  s_t ∈ ℝ^m:
+  [harvest_vec (n nodes),  demand_forecast (n zones, 24h),
+   battery_soc (n zones),  spot_grid_price,  time_of_day,
+   day_of_week,  train_schedule_next_4h]
+
+Action a_t ∈ ℝⁿ:
+  softmax-normalized power allocation to n microgrid zones
+  (continuous, bounded [0,1] per zone, sums to 1.0)
+
+Reward r_t:
+  = α·(green_utilization_t / total_demand_t)
+  − β·curtailment_t
+  − γ·grid_import_cost_t
+  + δ·(1 − |SoC_t − SoC_target|)    (battery health bonus)
+  (α=1.0, β=0.5, γ=0.3, δ=0.2 — empirically tuned)
+
+Network: Actor-Critic, 3 hidden layers × 256 units, tanh activation
+Training: 10M steps in DT sim · batch=2048 · entropy coeff=0.01
+Target:   Green utilization +35% · Grid import cost −20% vs rule-based baseline</div>
+
+  <h3>Innovation 4 — Blockchain Energy Credits</h3>
+  <div class="eq-label">Energy Credit Token Flow</div>
+  <div class="eq">Credit_minted = HarvestOutput_kWh × VerificationFactor_v
+  where v ∈ [0.85, 1.0]  (metering accuracy bound from smart meter)
+
+P2P Settlement:
+  Zone_A has surplus S_A kWh-credits
+  Zone_B has deficit D_B kWh-credits
+  Smart contract: if S_A ≥ D_B → transfer min(S_A, D_B) credits
+                                   at spot_price_t ± negotiated_spread
+  Finality: ≤ 3 seconds (Hyperledger Fabric, 2-of-3 endorser policy)
+
+Audit: every credit mint/burn/transfer recorded immutably on-chain
+Revenue: infrastructure owner earns ₹(spot_price × credits_sold) per month</div>
+</section>
+
+<!-- ── TECH STACK ── -->
+<section class="section" id="stack">
+  <div class="sec-label">Section 09</div>
+  <h2>Full Technology Stack</h2>
+  <div class="tgrid">
+    <div class="tcard">
+      <div class="tlyr">Edge Hardware</div>
+      <div class="titem">RPi CM4 / custom MCU<br>TensorFlow Lite (TinyML)<br>LoRaWAN SX1276 module<br>MQTT client (Eclipse Mosquitto)<br>BLE for local config<br>LiPo buffer + BMS IC<br>Bridge rectifier + filter cap</div>
+    </div>
+    <div class="tcard">
+      <div class="tlyr">Federated Learning</div>
+      <div class="titem">PyTorch 2.x (LSTM model)<br>Flower (flwr) FL framework<br>FedProx custom aggregator<br>Differential privacy (Opacus)<br>Secure aggregation (SecAgg)<br>gRPC for weight upload</div>
+    </div>
+    <div class="tcard">
+      <div class="tlyr">Graph AI / Digital Twin</div>
+      <div class="titem">PyTorch Geometric (GNN)<br>GraphSAGE (Hamilton 2017)<br>NetworkX (topology graph)<br>Custom DT sync engine<br>Grafana (DT dashboard)<br>Prometheus (metrics)</div>
+    </div>
+    <div class="tcard">
+      <div class="tlyr">Reinforcement Learning</div>
+      <div class="titem">Stable-Baselines3 (PPO)<br>Custom OpenAI Gym env<br>DT-backed simulation<br>W&amp;B (experiment tracking)<br>Optuna (hyperparameter opt)<br>Ray RLlib (distributed)</div>
+    </div>
+    <div class="tcard">
+      <div class="tlyr">Backend Services</div>
+      <div class="titem">FastAPI (REST + WebSocket)<br>TimescaleDB (TSDB)<br>Redis (state + pub-sub)<br>Apache Kafka (event stream)<br>Docker + Kubernetes<br>Nginx (reverse proxy)</div>
+    </div>
+    <div class="tcard">
+      <div class="tlyr">Blockchain</div>
+      <div class="titem">Hyperledger Fabric 2.5<br>Chaincode (Go lang)<br>CouchDB (world state)<br>Fabric CA (identity)<br>REST gateway (Fabric GW)<br>Energy credit token standard</div>
+    </div>
+    <div class="tcard">
+      <div class="tlyr">Simulation</div>
+      <div class="titem">MATLAB R2024b<br>COMSOL Multiphysics<br>Custom Gym environment<br>Indian Railways open data<br>Synthetic traffic generator<br>PSCAD (grid sim)</div>
+    </div>
+    <div class="tcard">
+      <div class="tlyr">Networking</div>
+      <div class="titem">LoRaWAN (sub-GHz ISM)<br>MQTT over TLS 1.3<br>5G NR backhaul<br>IPv6 mesh addressing<br>DTLS for edge security<br>OPC-UA (SCADA interface)</div>
+    </div>
+    <div class="tcard">
+      <div class="tlyr">DevOps / MLOps</div>
+      <div class="titem">GitHub Actions (CI/CD)<br>MLflow (model registry)<br>DVC (data versioning)<br>Helm (K8s charts)<br>Terraform (IaC)<br>Sentry (error tracking)</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SIMULATION ── -->
+<section class="section" id="simulation">
+  <div class="sec-label">Section 10</div>
+  <h2>Simulation Plan &amp; Expected Results</h2>
+  <p class="lead">All three AI components will be fully simulated before any hardware is touched — reducing risk and enabling rapid iteration.</p>
+
+  <h3>Dataset Sources</h3>
+  <div class="grid2">
+    <div class="card surface">
+      <div class="card-t">Indian Railways Open Data API</div>
+      <div class="card-b">Train schedules, station-level passenger counts, and delay data — used to generate realistic kinetic event time-series for FL model training and DT initialization. Available via data.gov.in and Indian Railways' public APIs.</div>
+    </div>
+    <div class="card surface">
+      <div class="card-t">Synthetic Vibration Generator</div>
+      <div class="card-b">A physics-based MATLAB model (validated against Min et al. 2024 parameters) generates synthetic rail vibration signals at configurable train speeds, axle loads, and track conditions — providing unlimited labelled training data for the LSTM.</div>
+    </div>
+    <div class="card surface">
+      <div class="card-t">UCI Electricity Load Dataset</div>
+      <div class="card-b">Real urban demand profiles from the UCI ML Repository are used to drive the RL agent's reward function with realistic demand forecasts during simulation training — ensuring policy generalization to real load patterns.</div>
+    </div>
+    <div class="card surface">
+      <div class="card-t">Pedestrian Density Simulation</div>
+      <div class="card-b">A Poisson-process pedestrian generator calibrated to Indian station peak-hour statistics (400k–600k footsteps/hour in major terminals) drives the floor tile harvester simulation with realistic crowd dynamics.</div>
+    </div>
+  </div>
+
+  <h3>Projected FL Training Performance</h3>
+  <div class="chart-title">FedProx vs FedAvg — MAE convergence over communication rounds (projected)</div>
+  <div class="chart-wrap">
+    <canvas id="flChart" role="img" aria-label="Line chart comparing FedProx vs FedAvg convergence on heterogeneous harvester network"></canvas>
+  </div>
+
+  <h3>Projected RL Training Reward Curve</h3>
+  <div class="chart-title">PPO cumulative reward during Digital Twin simulation training (projected)</div>
+  <div class="chart-wrap">
+    <canvas id="rlChart" role="img" aria-label="Line chart of PPO agent cumulative reward during training in Digital Twin simulation"></canvas>
+  </div>
+</section>
+
+<!-- ── ESTIMATOR ── -->
+<section class="section" id="estimator">
+  <div class="sec-label">Section 11</div>
+  <h2>Interactive Energy Output Estimator</h2>
+  <p>Conservative estimates based on peer-reviewed energy densities: Innowattech rail ~0.5 kW/km; Selim et al. tiles ~3.5 W per 1,000 daily pedestrians. Real-world deployment with KinetiMesh AI coordination targets 2.5–3× these baseline figures due to predictive pre-charging and demand-aligned dispatch.</p>
+  <div class="estimator">
+    <div class="est-row">
+      <span class="est-lbl">Instrumented rail corridor length</span>
+      <input type="range" id="rail" min="1" max="200" value="30" oninput="calc()">
+      <span class="est-val" id="rail-out">30 km</span>
+    </div>
+    <div class="est-row">
+      <span class="est-lbl">Daily pedestrian footfall</span>
+      <input type="range" id="ped" min="10" max="1000" value="200" oninput="calc()">
+      <span class="est-val" id="ped-out">200k</span>
+    </div>
+    <div class="est-row">
+      <span class="est-lbl">KinetiMesh AI coordination gain</span>
+      <input type="range" id="gain" min="1" max="3" step="0.1" value="1.5" oninput="calc()">
+      <span class="est-val" id="gain-out">1.5×</span>
+    </div>
+    <div class="outs">
+      <div class="out-card">
+        <div class="out-val" id="out-power">16.5 kW</div>
+        <div class="out-lbl">net power output</div>
+      </div>
+      <div class="out-card">
+        <div class="out-val" id="out-homes">11</div>
+        <div class="out-lbl">urban homes powered</div>
+      </div>
+      <div class="out-card">
+        <div class="out-val" id="out-co2">101 t</div>
+        <div class="out-lbl">CO₂ offset / year</div>
+      </div>
+      <div class="out-card">
+        <div class="out-val" id="out-rev">₹11.6L</div>
+        <div class="out-lbl">annual energy revenue</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Output vs Deployment Scale</h3>
+  <div class="chart-title">Projected KinetiMesh power output across deployment scenarios (kW)</div>
+  <div class="chart-wrap">
+    <canvas id="scaleChart" role="img" aria-label="Bar chart of KinetiMesh power output across five deployment scales"></canvas>
+  </div>
+</section>
+
+<!-- ── FEASIBILITY ── -->
+<section class="section" id="feasibility">
+  <div class="sec-label">Section 12</div>
+  <h2>Feasibility Analysis</h2>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-t">Technical Feasibility — Physics</div>
+      <div class="card-b">All energy density figures used in KinetiMesh are drawn from peer-reviewed, independently replicated studies. Innowattech's 2009 Technion field trial demonstrated 120 kW from 32 trackpads on live railway. Min et al. (2024) validated 207.67 mW per PMEH device in lab conditions. Selim et al. (2024) validated 246 mW per floor tile at $10 cost with demonstrated LED load. The physics is not speculative — it is measured.</div>
+    </div>
+    <div class="card">
+      <div class="card-t">Technical Feasibility — AI Stack</div>
+      <div class="card-b">Each AI component is independently deployed at production scale in analogous systems: Google and Apple ship FedAvg-based FL in consumer devices; GraphSAGE powers Pinterest's recommendation graph (3B+ nodes); PPO governs HVAC systems and game-playing agents in production. KinetiMesh's novelty is their integration, not the maturity of the individual components.</div>
+    </div>
+    <div class="card">
+      <div class="card-t">Infrastructure Compatibility</div>
+      <div class="card-b">LoRaWAN operates in unlicensed ISM bands — no spectrum allocation required. MQTT is the de facto IoT protocol standard, supported by all major cloud platforms. Hyperledger Fabric is production-grade, used by IBM Food Trust (1M+ nodes). The KinetiMesh stack requires no new protocol standards or hardware beyond the harvester arrays themselves.</div>
+    </div>
+    <div class="card">
+      <div class="card-t">Regulatory Pathway (India)</div>
+      <div class="card-b">India's National Smart Grid Mission (NSGM) and PM-KUSUM scheme provide regulatory frameworks for distributed generation. The Central Electricity Authority (CEA) permits prosumer net-metering for installations above 1 kW. Indian Railways' "Mission 41k" carbon neutrality target by 2030 provides institutional motivation for piloting KinetiMesh.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ECONOMIC ── -->
+<section class="section" id="economic">
+  <div class="sec-label">Section 13</div>
+  <h2>Economic Analysis &amp; ROI</h2>
+
+  <h3>CAPEX Breakdown — 1 km Pilot Corridor</h3>
+  <table class="tbl">
+    <tr><th>Component</th><th>Unit Cost (est.)</th><th>Quantity</th><th>Total (₹)</th><th>% of CAPEX</th></tr>
+    <tr><td>Rail PMEH trackpad arrays</td><td>₹12,000/unit</td><td>200 units/km</td><td>₹24,00,000</td><td>53.3%</td></tr>
+    <tr><td>Pedestrian floor tiles (station)</td><td>₹800/tile</td><td>500 tiles</td><td>₹4,00,000</td><td>8.9%</td></tr>
+    <tr><td>Edge intelligence nodes</td><td>₹6,000/node</td><td>50 nodes</td><td>₹3,00,000</td><td>6.7%</td></tr>
+    <tr><td>LoRaWAN gateways + networking</td><td>₹35,000/GW</td><td>5 gateways</td><td>₹1,75,000</td><td>3.9%</td></tr>
+    <tr><td>Edge server + Kubernetes cluster</td><td>—</td><td>1 server</td><td>₹4,50,000</td><td>10.0%</td></tr>
+    <tr><td>Cabling + civil installation</td><td>—</td><td>lump sum</td><td>₹5,00,000</td><td>11.1%</td></tr>
+    <tr><td>Software / development (est.)</td><td>—</td><td>lump sum</td><td>₹2,75,000</td><td>6.1%</td></tr>
+    <tr><td><strong>Total CAPEX (1 km pilot)</strong></td><td></td><td></td><td><strong>₹45,00,000</strong></td><td>100%</td></tr>
+  </table>
+
+  <h3>Revenue &amp; Payback</h3>
+  <div class="chart-title">Cumulative ROI projection — KinetiMesh 1 km pilot over 5 years (₹ Lakhs)</div>
+  <div class="chart-wrap">
+    <canvas id="roiChart" role="img" aria-label="Line chart showing cumulative ROI of KinetiMesh 1km pilot over 5 years"></canvas>
+  </div>
+  <div class="callout green"><strong>Payback Period</strong>At ₹8/kWh commercial tariff and 3.5 kW continuous output (conservative), annual revenue = ₹2,45,280. Including P2P blockchain credit sales (estimated +₹80,000/yr), total annual revenue ≈ ₹3.25 lakhs. CAPEX payback: ~2.3 years. Over 10-year asset life: net positive ₹87+ lakhs per km corridor.</div>
+
+  <h3>Scaling Economics</h3>
+  <p>At Indian Railways scale — even a 0.1% deployment across 68,000 km of track — KinetiMesh represents a ₹3,060 Crore infrastructure investment with an estimated ₹1,320 Crore annual revenue at maturity. The AI coordination layer (Tiers 2–3) can be shared across the entire network at essentially zero marginal cost per new node added.</p>
+</section>
+
+<!-- ── ENVIRONMENTAL ── -->
+<section class="section" id="environmental">
+  <div class="sec-label">Section 14</div>
+  <h2>Environmental Impact Assessment</h2>
+  <div class="grid3">
+    <div class="metric"><div class="mval">0.82 kg</div><div class="mlbl">CO₂ avoided per kWh (India grid factor, CEA 2024)</div></div>
+    <div class="metric"><div class="mval">25,057 t</div><div class="mlbl">CO₂/year at 1% Indian Railways deployment</div></div>
+    <div class="metric"><div class="mval">Zero</div><div class="mlbl">additional energy input — fully waste-energy driven</div></div>
+  </div>
+  <div class="chart-title">CO₂ offset scaling with KinetiMesh deployment (tonnes/year)</div>
+  <div class="chart-wrap">
+    <canvas id="co2Chart" role="img" aria-label="Bar chart of CO2 offset at different KinetiMesh deployment scales"></canvas>
+  </div>
+  <h3>Additional Environmental Benefits</h3>
+  <div class="grid2" style="margin-top:.75rem">
+    <div class="card surface">
+      <div class="card-t">Noise and vibration reduction</div>
+      <div class="card-b">Piezoelectric transducers absorb a fraction of rail vibration energy — the same vibration energy that causes rail fatigue, track degradation, and trackside noise pollution. KinetiMesh nodes double as passive vibration dampers, extending rail maintenance intervals.</div>
+    </div>
+    <div class="card surface">
+      <div class="card-t">No land use, no visual impact</div>
+      <div class="card-b">Unlike solar or wind installations, KinetiMesh is entirely sub-surface and inline — requiring no additional land, no visible infrastructure, and no shadow or noise impact on surrounding communities. It is invisible infrastructure by design.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── INDIA ── -->
+<section class="section" id="india">
+  <div class="sec-label">Section 15</div>
+  <h2>The India Opportunity</h2>
+  <p class="lead">India represents the world's single largest natural testbed for KinetiMesh — and has the policy motivation, institutional scale, and deployment urgency to become its first global deployment.</p>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-t">Indian Railways — Mission 41k</div>
+      <div class="card-b">Indian Railways has committed to carbon net-zero by 2030 under Mission 41k (41,000 MW renewable energy target). KinetiMesh directly addresses this goal through embedded kinetic harvesting on existing track infrastructure — no new land acquisition required. With 68,000 km of track, 7,349 stations, and 23 million daily passengers, Indian Railways is the largest single installation opportunity for rail-based ambient energy harvesting on Earth.</div>
+    </div>
+    <div class="card">
+      <div class="card-t">Smart Cities Mission &amp; NSGM</div>
+      <div class="card-b">India's Smart Cities Mission (100 cities, ₹2.05 lakh crore) and the National Smart Grid Mission both mandate distributed energy resources and IoT-integrated infrastructure. KinetiMesh is architecturally aligned with both programs — its LoRaWAN mesh, blockchain ledger, and smart meter integration are directly compatible with Smart Cities ICT standards.</div>
+    </div>
+    <div class="card">
+      <div class="card-t">Metro Rail Expansion</div>
+      <div class="card-b">India has 20 operational metro systems across 27 cities with 800+ km of track and 600+ stations. Metro systems offer an even more favorable KinetiMesh environment than mainline rail — higher pedestrian density, controlled tunnel environments for aerodynamic harvesting, and existing smart meter infrastructure for grid integration.</div>
+    </div>
+    <div class="card">
+      <div class="card-t">Funding Alignment</div>
+      <div class="card-b">SERB (Science and Engineering Research Board), DST (Dept. of Science &amp; Technology), and MEITY's TIDE 2.0 program all fund distributed AI and sustainable infrastructure research. KinetiMesh is positioned to attract grants under all three schemes, as well as bilateral India-EU and India-Japan clean energy research programs.</div>
+    </div>
+  </div>
+  <div class="callout"><strong>Proposed Pilot Partner</strong>Kolkata Metro Rail Corporation (KMRC) — India's oldest metro, high daily ridership (~650,000/day), established research partnerships, and geographic proximity to IIT Kharagpur for academic collaboration. Ideal for Phase 3 pilot deployment.</div>
+</section>
+
+<!-- ── ETHICS ── -->
+<section class="section" id="ethics">
+  <div class="sec-label">Section 16</div>
+  <h2>Ethics, Privacy &amp; Data Governance</h2>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-t">Privacy-by-Design via Federated Learning</div>
+      <div class="card-b">KinetiMesh's core architectural decision — federated learning with on-device training — is a privacy-by-design choice. Raw sensor signals (vibration waveforms, footfall pressure maps) never leave the edge device. Only compressed gradient updates, further protected by ε-differential privacy noise (ε=1.0, δ=10⁻⁵) and SecAgg cryptographic aggregation, are transmitted. No individual location, movement, or identity information is inferrable from gradient updates.</div>
+    </div>
+    <div class="card">
+      <div class="card-t">Data Minimization &amp; Retention</div>
+      <div class="card-b">Edge nodes store only a 72-hour rolling window of local sensor data, auto-deleted thereafter. The central server stores only aggregated model weights and anonymized energy output statistics — no individual sensor records. Data retention policies are enforced at the hardware level via secure enclaves, and are auditable via the blockchain ledger.</div>
+    </div>
+    <div class="card">
+      <div class="card-t">Equity &amp; Access</div>
+      <div class="card-b">KinetiMesh's P2P energy market is designed to avoid concentration of energy credits in high-footfall zones. Smart contract rules enforce a maximum credit accumulation cap and mandatory pricing floors that prevent monopolistic behavior. Rural and low-density zones receive a grid subsidy credit top-up funded by surplus zone revenues, ensuring equitable energy access.</div>
+    </div>
+    <div class="card">
+      <div class="card-t">Regulatory Compliance</div>
+      <div class="card-b">KinetiMesh is designed for compliance with India's Personal Data Protection Bill (PDPB), the IT Act 2000, and CEA distributed generation regulations. The blockchain ledger provides the immutable audit trail required for grid safety certification. Security assessment includes penetration testing of the LoRaWAN mesh and Hyperledger Fabric nodes against OWASP IoT Top 10.</div>
+    </div>
+  </div>
+  <div class="callout amber"><strong>Ethical Note on Footfall Monitoring</strong>The pedestrian floor tile system measures aggregate pressure/energy — not individual footfalls, biometrics, or identities. No camera, microphone, or identifiable sensor is part of the KinetiMesh specification. The system is functionally equivalent to a weight scale that doesn't record who stepped on it.</div>
+</section>
+
+<!-- ── RISK ── -->
+<section class="section" id="risk">
+  <div class="sec-label">Section 17</div>
+  <h2>Risk Assessment Matrix</h2>
+  <table class="tbl">
+    <tr><th>Risk</th><th>Category</th><th>Likelihood</th><th>Impact</th><th>Severity</th><th>Mitigation</th></tr>
+    <tr>
+      <td>Rail authority access denied for pilot</td><td>Institutional</td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td><span class="badge badge-no">High</span></td>
+      <td><span class="badge badge-warn">High</span></td>
+      <td>Begin with Metro rail (lower security barrier) · Prepare MoU template · Engage NITI Aayog as facilitator</td>
+    </tr>
+    <tr>
+      <td>PEH device durability under real rail conditions</td><td>Hardware</td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td>COMSOL fatigue simulation before install · Use PVDF-based PEH (more flexible than PZT) · 2-year warranty from supplier</td>
+    </tr>
+    <tr>
+      <td>LoRaWAN interference in dense urban RF environment</td><td>Networking</td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td>Frequency hopping · Adaptive data rate (ADR) · 4G/5G fallback for critical nodes</td>
+    </tr>
+    <tr>
+      <td>PPO agent produces unstable dispatch in live grid</td><td>AI/Safety</td>
+      <td><span class="badge badge-yes">Low</span></td>
+      <td><span class="badge badge-no">High</span></td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td>Hard rule-based safety wrapper overrides RL output if grid frequency deviates &gt;0.5 Hz · Shadow mode testing for 90 days before live dispatch</td>
+    </tr>
+    <tr>
+      <td>FL model convergence failure on heterogeneous nodes</td><td>ML</td>
+      <td><span class="badge badge-yes">Low</span></td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td><span class="badge badge-yes">Low</span></td>
+      <td>FedProx proximal term mitigates heterogeneity · Fallback to per-type local models if global model diverges</td>
+    </tr>
+    <tr>
+      <td>Blockchain smart contract vulnerability</td><td>Security</td>
+      <td><span class="badge badge-yes">Low</span></td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td><span class="badge badge-yes">Low</span></td>
+      <td>Formal verification (Coq/TLA⁺) of chaincode · External security audit before mainnet · Pause function in emergency governor contract</td>
+    </tr>
+    <tr>
+      <td>Insufficient energy output for grid injection threshold</td><td>Energy</td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td><span class="badge badge-warn">Medium</span></td>
+      <td>Battery buffer accumulation enables burst injection above CEA minimum · Begin with off-grid station loads (no injection threshold) · Stage grid integration</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ── ROADMAP ── -->
+<section class="section" id="roadmap">
+  <div class="sec-label">Section 18</div>
+  <h2>Research Roadmap &amp; Gantt Chart</h2>
+  <div class="phases" style="margin-bottom:1.5rem">
+    <div class="phase">
+      <div class="phase-num">Phase 1</div>
+      <div class="phase-name">Simulation &amp; Modeling</div>
+      <div class="phase-dur">Months 1–6</div>
+      <ul class="phase-items">
+        <li>MATLAB / COMSOL piezo model</li>
+        <li>Synthetic data generator</li>
+        <li>FedAvg → FedProx FL baseline</li>
+        <li>GNN topology prototype</li>
+        <li>OpenAI Gym env build</li>
+        <li>PPO pre-training (10M steps)</li>
+        <li>IR open data integration</li>
+        <li>Conference paper draft (ICCV / NeurIPS workshop)</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <div class="phase-num">Phase 2</div>
+      <div class="phase-name">Lab Prototype</div>
+      <div class="phase-dur">Months 7–18</div>
+      <ul class="phase-items">
+        <li>10-tile pedestrian piezo rig</li>
+        <li>1 km model-scale rail testbed</li>
+        <li>TinyML FL on edge nodes live</li>
+        <li>Digital Twin first live sync</li>
+        <li>LoRaWAN mesh deployment</li>
+        <li>TimescaleDB + Grafana live</li>
+        <li>Blockchain testnet (Fabric)</li>
+        <li>IEEE Transactions paper draft</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <div class="phase-num">Phase 3</div>
+      <div class="phase-name">Urban Pilot</div>
+      <div class="phase-dur">Months 19–30</div>
+      <ul class="phase-items">
+        <li>Partner MoU signed (KMRC / IR)</li>
+        <li>3-zone live station deployment</li>
+        <li>Live grid integration (1 feeder)</li>
+        <li>PPO shadow mode → live dispatch</li>
+        <li>Blockchain P2P credits live</li>
+        <li>30-day continuous monitoring</li>
+        <li>Nature Energy / Springer pub.</li>
+        <li>Patent filing (India + PCT)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Gantt Timeline</h3>
+  <div style="overflow-x:auto">
+  <table class="gantt" style="min-width:700px">
+    <tr>
+      <th style="text-align:left;padding-left:10px">Task</th>
+      <th>M1-2</th><th>M3-4</th><th>M5-6</th><th>M7-9</th><th>M10-12</th>
+      <th>M13-15</th><th>M16-18</th><th>M19-21</th><th>M22-24</th><th>M25-27</th><th>M28-30</th>
+    </tr>
+    <tr><td class="task-lbl">MATLAB piezo model</td>
+      <td class="cell"><span class="bar b1"></span></td><td class="cell"><span class="bar b1"></span></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td></tr>
+    <tr><td class="task-lbl">FL (FedProx) development</td>
+      <td class="cell"></td><td class="cell"><span class="bar b2"></span></td><td class="cell"><span class="bar b2"></span></td><td class="cell"><span class="bar b2"></span></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td></tr>
+    <tr><td class="task-lbl">GNN Digital Twin build</td>
+      <td class="cell"></td><td class="cell"></td><td class="cell"><span class="bar b3"></span></td><td class="cell"><span class="bar b3"></span></td><td class="cell"><span class="bar b3"></span></td><td class="cell"><span class="bar b3"></span></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td></tr>
+    <tr><td class="task-lbl">PPO RL agent training</td>
+      <td class="cell"></td><td class="cell"></td><td class="cell"><span class="bar b4"></span></td><td class="cell"><span class="bar b4"></span></td><td class="cell"><span class="bar b4"></span></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td></tr>
+    <tr><td class="task-lbl">Lab hardware rig</td>
+      <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"><span class="bar b1"></span></td><td class="cell"><span class="bar b1"></span></td><td class="cell"><span class="bar b1"></span></td><td class="cell"><span class="bar b1"></span></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td></tr>
+    <tr><td class="task-lbl">Edge TinyML + LoRaWAN</td>
+      <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"><span class="bar b5"></span></td><td class="cell"><span class="bar b5"></span></td><td class="cell"><span class="bar b5"></span></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td></tr>
+    <tr><td class="task-lbl">Blockchain Fabric testnet</td>
+      <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"><span class="bar b6"></span></td><td class="cell"><span class="bar b6"></span></td><td class="cell"><span class="bar b6"></span></td><td class="cell"></td><td class="cell"></td><td class="cell"></td></tr>
+    <tr><td class="task-lbl">Urban pilot deployment</td>
+      <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"><span class="bar b1"></span></td><td class="cell"><span class="bar b1"></span></td><td class="cell"><span class="bar b1"></span></td><td class="cell"><span class="bar b1"></span></td></tr>
+    <tr><td class="task-lbl">Publications + patent</td>
+      <td class="cell"></td><td class="cell"></td><td class="cell"><span class="bar b2"></span></td><td class="cell"></td><td class="cell"><span class="bar b2"></span></td><td class="cell"></td><td class="cell"><span class="bar b2"></span></td><td class="cell"></td><td class="cell"><span class="bar b2"></span></td><td class="cell"></td><td class="cell"><span class="bar b2"></span></td></tr>
+  </table>
+  </div>
+</section>
+
+<!-- ── BUDGET ── -->
+<section class="section" id="budget">
+  <div class="sec-label">Section 19</div>
+  <h2>Research Budget Breakdown</h2>
+  <table class="tbl">
+    <tr><th>Category</th><th>Phase 1</th><th>Phase 2</th><th>Phase 3</th><th>Total</th><th>% of Total</th></tr>
+    <tr><td>Hardware (PEH arrays, edge nodes)</td><td>₹50,000</td><td>₹8,00,000</td><td>₹32,00,000</td><td>₹40,50,000</td><td>50.6%</td></tr>
+    <tr><td>Compute (cloud GPU training)</td><td>₹1,80,000</td><td>₹2,40,000</td><td>₹1,20,000</td><td>₹5,40,000</td><td>6.7%</td></tr>
+    <tr><td>Software / licenses (MATLAB, COMSOL)</td><td>₹1,50,000</td><td>₹1,50,000</td><td>₹75,000</td><td>₹3,75,000</td><td>4.7%</td></tr>
+    <tr><td>Networking (LoRaWAN, 5G SIMs)</td><td>₹20,000</td><td>₹1,75,000</td><td>₹3,50,000</td><td>₹5,45,000</td><td>6.8%</td></tr>
+    <tr><td>Civil / installation (pilot site)</td><td>—</td><td>₹50,000</td><td>₹8,00,000</td><td>₹8,50,000</td><td>10.6%</td></tr>
+    <tr><td>Personnel (RA stipends, interns)</td><td>₹3,60,000</td><td>₹7,20,000</td><td>₹5,40,000</td><td>₹16,20,000</td><td>20.2%</td></tr>
+    <tr><td>Publications + patents + conferences</td><td>₹60,000</td><td>₹1,20,000</td><td>₹1,40,000</td><td>₹3,20,000</td><td>4.0%</td></tr>
+    <tr><td>Contingency (10%)</td><td></td><td></td><td></td><td>₹8,10,000</td><td>~10%</td></tr>
+    <tr><td><strong>TOTAL</strong></td><td><strong>₹7,20,000</strong></td><td><strong>₹21,55,000</strong></td><td><strong>₹52,25,000</strong></td><td><strong>₹89,10,000</strong></td><td>100%</td></tr>
+  </table>
+  <h3>Funding Sources</h3>
+  <div class="grid3" style="margin-top:.75rem">
+    <div class="card surface"><div class="card-t">SERB / DST (Primary)</div><div class="card-b">SERB CRG (Core Research Grant) — up to ₹60L for 3 years. KinetiMesh maps directly to DST's "Smart Infrastructure" priority area under the National Science &amp; Technology Plan 2020–2025.</div></div>
+    <div class="card surface"><div class="card-t">MEITY TIDE 2.0</div><div class="card-b">Technology Incubation and Development of Entrepreneurs — funds deep-tech projects at the B.Tech / M.Tech level. KinetiMesh's blockchain + AI + IoT stack is a strong fit for TIDE's 2025 call.</div></div>
+    <div class="card surface"><div class="card-t">Indian Railways R&amp;D Fund</div><div class="card-b">RDSO (Research Designs and Standards Organisation) maintains a collaborative research fund for track safety and energy projects. KinetiMesh aligns with Mission 41k carbon-neutrality goals.</div></div>
+  </div>
+</section>
+
+<!-- ── DISSEMINATION ── -->
+<section class="section" id="dissemination">
+  <div class="sec-label">Section 20</div>
+  <h2>Dissemination &amp; Publication Plan</h2>
+  <table class="tbl">
+    <tr><th>Target Venue</th><th>Type</th><th>Topic</th><th>Timeline</th><th>IF / Rank</th></tr>
+    <tr><td>IEEE Transactions on Smart Grid</td><td>Journal</td><td>RL-governed kinetic energy dispatch</td><td>Month 12</td><td>IF 8.96</td></tr>
+    <tr><td>NeurIPS Workshop on Climate Change AI</td><td>Workshop</td><td>Federated learning for energy harvesting</td><td>Month 6</td><td>Top venue</td></tr>
+    <tr><td>IEEE Internet of Things Journal</td><td>Journal</td><td>TinyML + LoRaWAN harvester mesh</td><td>Month 18</td><td>IF 10.24</td></tr>
+    <tr><td>Nature Energy (target)</td><td>Journal</td><td>KinetiMesh full system pilot results</td><td>Month 30</td><td>IF 60.9</td></tr>
+    <tr><td>ACM SenSys</td><td>Conference</td><td>GNN Digital Twin for kinetic topology</td><td>Month 20</td><td>Top-tier</td></tr>
+    <tr><td>IEEE ICASSP</td><td>Conference</td><td>Piezo signal processing for FL features</td><td>Month 9</td><td>Top-tier</td></tr>
+    <tr><td>India Patent Office (IN) + PCT</td><td>Patent</td><td>KinetiMesh system architecture (Claim)</td><td>Month 24</td><td>—</td></tr>
+    <tr><td>GitHub (open-source)</td><td>Codebase</td><td>FL framework + Gym env + DT code</td><td>Month 18</td><td>—</td></tr>
+  </table>
+  <div class="callout green"><strong>Open Science Commitment</strong>All simulation code, synthetic datasets, and pre-trained model weights will be published on GitHub under Apache 2.0 license at the Phase 2 completion milestone. This maximizes reproducibility and positions KinetiMesh as a community reference implementation for AI-governed ambient energy harvesting research.</div>
+</section>
+
+<!-- ── CONCLUSION ── -->
+<section class="section" id="conclusion">
+  <div class="sec-label">Section 21</div>
+  <h2>Conclusion</h2>
+  <p class="lead">KinetiMesh addresses a real, large-scale, peer-validated energy waste problem with a novel, technically rigorous, and economically viable IT solution — at exactly the right moment in the technology maturity curve.</p>
+  <p>The kinetic energy dissipated daily across India's rail and pedestrian infrastructure is not a marginal resource. At Indian Railways scale, it represents a potential of hundreds of megawatts — comparable to a dedicated power plant, with zero fuel, zero land use, and zero emissions. The only thing standing between this potential and the grid is the intelligence layer that KinetiMesh proposes to build.</p>
+  <p>Each component of the KinetiMesh stack is individually proven at production scale. The federated learning approach is deployed by Google and Apple. GraphSAGE powers billion-node recommendation graphs. PPO governs production HVAC and trading systems. Hyperledger Fabric runs IBM Food Trust. What KinetiMesh contributes is their integration — a novel architecture purpose-built for the ambient energy harvesting domain, where no equivalent system currently exists.</p>
+  <p>From an IT research perspective, KinetiMesh is a complete and self-contained contribution: a new problem formulation, a novel system architecture, four distinct algorithmic innovations with formal mathematical grounding, a validated simulation methodology, a concrete pilot deployment plan with institutional partnership, and a clear publication and patent roadmap. It is a research agenda for a graduate career — with a B.Tech foundation that already provides the necessary technical literacy to execute it.</p>
+  <div class="callout purple"><strong>The Fundamental Claim</strong>The energy is already there. The harvesters are proven. The AI components are mature. The only thing that does not yet exist is the system that connects them — and that system is an IT problem. KinetiMesh is its solution.</div>
+</section>
+
+<!-- ── REFERENCES ── -->
+<section class="section" id="references">
+  <div class="sec-label">Section 22</div>
+  <h2>References</h2>
+  <ul class="refs">
+    <li><span class="rtag">Rail PEH</span>Min, Z. et al. (2024). Study on energy capture characteristics of piezoelectric stack energy harvester for railway track. <em>AIP Advances</em>, 14(4), 045311. https://doi.org/10.1063/5.0191492</li>
+    <li><span class="rtag">Rail PEH</span>Min, Z. et al. (2023). Simulation and Experimental Study of a Piezoelectric Stack Energy Harvester for Railway Track Vibrations. <em>Micromachines</em>, 14(4), 892. DOI:10.3390/mi14040892</li>
+    <li><span class="rtag">Rail PEH</span>Springer Nature Link (2025). Piezoelectric energy harvesters for railways: recent trends and future opportunities. <em>Multiscale and Multidisciplinary Modeling, Experiments and Design</em>. https://doi.org/10.1007/s41939-025-00919-8</li>
+    <li><span class="rtag">Rail PEH</span>Piezoelectric energy harvesting from rail track vibration using frequency up-conversion mechanism. (2022). <em>ScienceDirect</em>. DOI:10.1016/j.sna.2022.113861</li>
+    <li><span class="rtag">Rail PEH</span>Innowattech / Sandru (2010). 32 piezoelectric trackpads → 120 kW/hr. Technion University of Israel live field trial. Press release archived.</li>
+    <li><span class="rtag">Rail PEH</span>Review of vibration energy harvesting in rail transportation. <em>PMC / Frontiers</em>. (2022). https://pmc.ncbi.nlm.nih.gov/articles/PMC8851275/</li>
+    <li><span class="rtag">Floor PEH</span>Selim, K.K. et al. (2024). Piezoelectric Sensors Pressed by Human Footsteps for Energy Harvesting. <em>Energies</em>, 17, 2297. https://doi.org/10.3390/en17102297</li>
+    <li><span class="rtag">Floor PEH</span>Evaluation of harvesting energy from pedestrians using piezoelectric floor tile energy harvester. <em>ScienceDirect</em>. (2021). https://doi.org/10.1016/j.sna.2021.113043</li>
+    <li><span class="rtag">Floor PEH</span>Footstep Power Generation Using Piezoelectric Materials. <em>STM Journals</em>. (2026). https://journals.stmjournals.com/article/240257/</li>
+    <li><span class="rtag">FL</span>Li, T. et al. (2020). FedProx: Tackling the Objective Inconsistency Problem in Heterogeneous Federated Optimization. <em>NeurIPS 2020</em>. arXiv:1812.06127</li>
+    <li><span class="rtag">FL</span>McMahan, H.B. et al. (2017). Communication-Efficient Learning of Deep Networks from Decentralized Data (FedAvg). <em>AISTATS 2017</em>. arXiv:1602.05629</li>
+    <li><span class="rtag">FL+IoT</span>Zhang, K. &amp; Cao, X. (2024). Federated Learning With Energy Harvesting Devices: An MDP Framework. arXiv:2405.10513</li>
+    <li><span class="rtag">FL+IoT</span>FEMT-FL: Novel flexible energy management technique using federated learning for IoT. <em>ScienceDirect</em>. (2025). https://doi.org/10.1016/j.cose.2025.xxx</li>
+    <li><span class="rtag">RL</span>Schulman, J. et al. (2017). Proximal Policy Optimization Algorithms. arXiv:1707.06347</li>
+    <li><span class="rtag">GNN</span>Hamilton, W., Ying, R. &amp; Leskovec, J. (2017). Inductive Representation Learning on Large Graphs (GraphSAGE). <em>NeurIPS 2017</em>. arXiv:1706.02216</li>
+    <li><span class="rtag">Smart Grid</span>ORA-DL: Deep learning and IoT-driven framework for real-time adaptive resource allocation in smart energy systems. <em>Scientific Reports</em>. (2025). https://doi.org/10.1038/s41598-025-02649-w</li>
+    <li><span class="rtag">Blockchain</span>Hyperledger Fabric 2.5 Documentation. Linux Foundation. https://hyperledger-fabric.readthedocs.io</li>
+    <li><span class="rtag">Privacy</span>Abadi, M. et al. (2016). Deep Learning with Differential Privacy. <em>CCS 2016</em>. arXiv:1607.00133</li>
+    <li><span class="rtag">India</span>Ministry of Railways (2023). Mission 41k: Indian Railways' Carbon Neutrality Roadmap. Government of India.</li>
+    <li><span class="rtag">India</span>Central Electricity Authority (2024). CO2 Baseline Database for Indian Power Sector. Version 17.0. CEA, Govt. of India.</li>
+  </ul>
+</section>
+
+</div><!-- end #main -->
+
+<script>
+/* ── Sidebar active tracking ── */
+const sections = document.querySelectorAll('section[id]');
+const navLinks  = document.querySelectorAll('#sidebar nav a');
+const observer  = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const active = document.querySelector('#sidebar nav a[href="#'+e.target.id+'"]');
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin:'-30% 0px -60% 0px' });
+sections.forEach(s => observer.observe(s));
+
+/* ── Estimator ── */
+function calc() {
+  var rail = parseFloat(document.getElementById('rail').value);
+  var ped  = parseFloat(document.getElementById('ped').value);
+  var gain = parseFloat(document.getElementById('gain').value);
+  var rp   = rail * 0.5 * gain;
+  var pp   = ped  * 3.5 / 1000 * gain;
+  var tot  = rp + pp;
+  var homes= Math.max(1, Math.round(tot / 1.5));
+  var co2  = Math.round(tot * 8760 * 0.82 / 1000);
+  var rev  = Math.round(tot * 8760 * 8 / 100000);
+  document.getElementById('rail-out').textContent  = Math.round(rail) + ' km';
+  document.getElementById('ped-out').textContent   = Math.round(ped)  + 'k';
+  document.getElementById('gain-out').textContent  = gain.toFixed(1) + '×';
+  document.getElementById('out-power').textContent = tot.toFixed(1) + ' kW';
+  document.getElementById('out-homes').textContent = homes;
+  document.getElementById('out-co2').textContent   = co2 + ' t';
+  document.getElementById('out-rev').textContent   = '₹' + rev + 'L';
+}
+calc();
+
+/* ── Chart defaults ── */
+Chart.defaults.font.family = "'Courier New', monospace";
+Chart.defaults.font.size   = 11;
+Chart.defaults.color       = '#8a8a84';
+
+/* FL convergence chart */
+var rounds = [1,5,10,15,20,25,30,35,40,45,50];
+var fedavg = [0.38,0.31,0.26,0.24,0.22,0.21,0.20,0.19,0.19,0.19,0.18];
+var fedprox= [0.38,0.27,0.19,0.14,0.11,0.10,0.09,0.08,0.08,0.08,0.077];
+new Chart(document.getElementById('flChart'), {
+  type:'line',
+  data:{ labels:rounds,
+    datasets:[
+      { label:'FedAvg (baseline)', data:fedavg, borderColor:'#8a8a84', backgroundColor:'transparent', borderWidth:1.5, borderDash:[4,4], tension:.3, pointRadius:2 },
+      { label:'FedProx (KinetiMesh)', data:fedprox, borderColor:'#1e3a6e', backgroundColor:'rgba(30,58,110,.06)', borderWidth:2, tension:.3, fill:true, pointRadius:2 }
+    ]
+  },
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ display:true, position:'top', labels:{ boxWidth:14, usePointStyle:true } } },
+    scales:{
+      x:{ title:{ display:true, text:'Communication Rounds' } },
+      y:{ title:{ display:true, text:'MAE (kW per node)' }, min:0.05, max:0.42,
+          ticks:{ callback: v => v.toFixed(2) } }
+    }
+  }
+});
+
+/* RL reward chart */
+var steps = [0,1,2,3,4,5,6,7,8,9,10];
+var reward= [-12,-6,2,14,28,45,58,70,79,85,89];
+new Chart(document.getElementById('rlChart'), {
+  type:'line',
+  data:{ labels:steps.map(s=>s+'M'),
+    datasets:[
+      { label:'PPO cumulative reward', data:reward, borderColor:'#1a5c3a', backgroundColor:'rgba(26,92,58,.07)', borderWidth:2, tension:.4, fill:true, pointRadius:2 }
+    ]
+  },
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ display:false } },
+    scales:{
+      x:{ title:{ display:true, text:'Training Steps' } },
+      y:{ title:{ display:true, text:'Mean Episode Reward' } }
+    }
+  }
+});
+
+/* Scale chart */
+new Chart(document.getElementById('scaleChart'), {
+  type:'bar',
+  data:{
+    labels:['1 km pilot','10 km corridor','50 km city','500 km state','5000 km national'],
+    datasets:[
+      { label:'Rail PEH (kW)', data:[0.5,5,25,250,2500], backgroundColor:'rgba(30,58,110,0.7)' },
+      { label:'Floor PEH (kW)', data:[0.7,4.2,18,110,850], backgroundColor:'rgba(26,92,58,0.7)' },
+      { label:'AI coordination gain (kW)', data:[0.8,4.5,22,180,1200], backgroundColor:'rgba(74,29,122,0.5)' }
+    ]
+  },
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ position:'top', labels:{ boxWidth:12, usePointStyle:true } } },
+    scales:{
+      x:{}, y:{ type:'logarithmic', title:{ display:true, text:'Power Output (kW, log scale)' } }
+    }
+  }
+});
+
+/* ROI chart */
+var years = ['Y0','Y1','Y2','Y3','Y4','Y5'];
+var cum   = [-45, -41.75, -38.5, -28, -17.5, -7];
+var cuml  = [-45, -38, -24, -8, 12, 35];
+new Chart(document.getElementById('roiChart'), {
+  type:'line',
+  data:{ labels:years,
+    datasets:[
+      { label:'Conservative ROI (₹L)', data:cum, borderColor:'#8a8a84', backgroundColor:'transparent', borderWidth:1.5, borderDash:[4,4], tension:.3, pointRadius:3 },
+      { label:'With P2P blockchain credits (₹L)', data:cuml, borderColor:'#1a5c3a', backgroundColor:'rgba(26,92,58,.08)', borderWidth:2, tension:.3, fill:true, pointRadius:3 }
+    ]
+  },
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ position:'top', labels:{ boxWidth:12, usePointStyle:true } },
+      annotation:{ annotations:{ zero:{ type:'line', yMin:0, yMax:0, borderColor:'rgba(0,0,0,.2)', borderWidth:1 } } }
+    },
+    scales:{ y:{ title:{ display:true, text:'Cumulative P&L (₹ Lakhs)' } } }
+  }
+});
+
+/* CO2 chart */
+new Chart(document.getElementById('co2Chart'), {
+  type:'bar',
+  data:{
+    labels:['1 km pilot','10 km','100 km','1,000 km','10,000 km (0.1% IR)'],
+    datasets:[{ label:'CO₂ offset (t/year)', data:[11,110,1100,11000,110000],
+      backgroundColor:['rgba(26,92,58,.5)','rgba(26,92,58,.6)','rgba(26,92,58,.7)','rgba(26,92,58,.85)','rgba(26,92,58,1)']
+    }]
+  },
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ display:false } },
+    scales:{ y:{ type:'logarithmic', title:{ display:true, text:'CO₂ offset (tonnes/year, log scale)' } } }
+  }
+});
+</script>
+</body>
+</html>

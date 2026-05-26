@@ -1,0 +1,62 @@
+name: KinetiMesh CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+
+  test-backend:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          pip install fastapi uvicorn websockets pydantic pydantic-settings
+          pip install asyncpg redis httpx python-multipart python-dotenv
+          pip install pytest httpx
+      - name: Run tests
+        run: |
+          cd backend
+          if [ -f "tests/test_main.py" ]; then
+            python -m pytest tests/ -v --tb=short
+          else
+            python -c "from app.main import app; print('Import OK')"
+          fi
+
+  test-ml:
+    name: ML Module Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install ML dependencies
+        run: pip install torch numpy networkx
+      - name: Test FedProx FL
+        run: |
+          cd ml/federated
+          python train_fedprox.py --nodes 4 --rounds 3 --mu 0.01 --local-epochs 1
+      - name: Test Digital Twin
+        run: |
+          cd ml/gnn
+          python digital_twin.py
+
+  build-docker:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: [test-backend, test-ml]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build backend Docker image
+        run: |
+          docker build -t kinetimesh-backend:latest ./backend
+          echo "Build successful — image ready for deployment"
+          docker images kinetimesh-backend:latest
