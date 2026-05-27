@@ -125,59 +125,135 @@ ORA-DL~\cite{oraDL2025}          & N/A & N/A & \checkmark & \checkmark & \textti
 
 Fig.~\ref{fig:architecture} illustrates the four-tier KinetiMesh architecture. The design philosophy throughout was to keep each tier independently deployable while maximizing the value of full-stack integration.
 
-\begin{figure}[ht]
+\begin{figure*}[ht]
 \centering
 \begin{tikzpicture}[
-  node distance=0.35cm,
-  box/.style={rectangle, rounded corners=4pt, draw, thick, text width=3.5cm, align=center, font=\footnotesize, minimum height=0.8cm},
-  tier1/.style={box, fill=teal!15, draw=teal!60},
-  tier2/.style={box, fill=blue!10, draw=blue!50},
-  tier3/.style={box, fill=purple!12, draw=purple!50},
-  tier4/.style={box, fill=orange!12, draw=orange!50},
-  arr/.style={-{Stealth[length=5pt]}, thick},
-  label/.style={font=\scriptsize\bfseries, text=gray}
+  node distance=0.5cm,
+  every node/.style={font=\small},
+  %% Styles
+  srcbox/.style={
+    rectangle, rounded corners=5pt, draw=teal!70, thick,
+    fill=teal!10, text width=4.0cm, align=center,
+    minimum height=1.1cm, inner sep=5pt
+  },
+  edgebox/.style={
+    rectangle, rounded corners=5pt, draw=blue!60, thick,
+    fill=blue!8, text width=13.2cm, align=center,
+    minimum height=1.1cm, inner sep=6pt
+  },
+  mlbox/.style={
+    rectangle, rounded corners=5pt, draw=purple!60, thick,
+    fill=purple!8, text width=3.8cm, align=center,
+    minimum height=1.2cm, inner sep=5pt
+  },
+  intbox/.style={
+    rectangle, rounded corners=5pt, draw=orange!60, thick,
+    fill=orange!8, text width=5.8cm, align=center,
+    minimum height=1.1cm, inner sep=5pt
+  },
+  arr/.style={-{Stealth[length=6pt,width=5pt]}, thick, gray!70},
+  tierlbl/.style={font=\scriptsize\bfseries\sffamily, text=gray!60, rotate=90}
 ]
 
-\node[tier1] (rail)  {Rail PMEH Arrays\\{\scriptsize 30-650 Hz, kN axle loads}};
-\node[tier1, right=0.2cm of rail] (floor) {Floor PZT Tiles\\{\scriptsize 246 mW/tile (Selim '24)}};
-\node[tier1, right=0.2cm of floor] (env)  {Wind + TEG\\{\scriptsize tunnel draft + thermal}};
+%% ── TIER 1: Physical Sources ─────────────────────────────────
+\node[srcbox] (rail) {%
+  \textbf{Rail PMEH Arrays}\\
+  {\footnotesize 30--650 Hz · kN axle loads}
+};
+\node[srcbox, right=0.45cm of rail] (floor) {%
+  \textbf{Floor PZT Tiles}\\
+  {\footnotesize 246\,mW/tile · \$10 cost}
+};
+\node[srcbox, right=0.45cm of floor] (wind) {%
+  \textbf{Wind Harvester}\\
+  {\footnotesize tunnel aerodynamic draft}
+};
+\node[srcbox, right=0.45cm of wind] (teg) {%
+  \textbf{Thermal TEG}\\
+  {\footnotesize rail–ambient $\Delta T$ gradient}
+};
 
-\node[tier2, below=0.4cm of floor, text width=7.5cm] (edge)
-  {Tier 2: Edge Intelligence (TinyML Mesh)\\
-  {\scriptsize RPi CM4 · TF Lite · LoRaWAN · MQTT/TLS · FedProx client · $\varepsilon$-DP gradient}};
+%% Tier 1 label
+\node[tierlbl, left=0.3cm of rail] {Tier 1 — Sources};
 
-\draw[arr] (rail.south) -- ++(0,-0.2) -| (edge.north);
-\draw[arr] (floor.south) -- (edge.north);
-\draw[arr] (env.south) -- ++(0,-0.2) -| (edge.north);
+%% AC→DC note
+\node[font=\scriptsize\itshape, text=gray, below=0.08cm of floor,
+      xshift=1.6cm] (acdc) {AC $\to$ DC · Bridge rectifier · Charge IC · LiPo buffer};
 
-\node[tier3, below=0.4cm of edge, xshift=-2cm, text width=2.2cm] (fl)
-  {FedProx FL\\{\scriptsize LSTM harvest\\predictor}};
-\node[tier3, below=0.4cm of edge, text width=2.2cm] (dt)
-  {GNN Digital Twin\\{\scriptsize GraphSAGE\\topology}};
-\node[tier3, below=0.4cm of edge, xshift=2cm, text width=2.2cm] (rl)
-  {PPO RL Router\\{\scriptsize demand-aware\\dispatch}};
+%% ── TIER 2: Edge Intelligence ────────────────────────────────
+\node[edgebox, below=0.55cm of acdc] (edge) {%
+  \textbf{Tier 2 — Edge Intelligence Node (TinyML Mesh)}\\
+  {\footnotesize
+  RPi CM4\,/\,custom ASIC \quad TensorFlow Lite inference \quad
+  \mbox{LoRaWAN sub-GHz} \quad MQTT over TLS\,1.3 \quad
+  \mbox{FedProx local client} \quad $\varepsilon$-DP noise before upload}
+};
+\node[tierlbl, left=0.3cm of edge] {Tier 2 — Edge};
 
+%% Arrows T1 → T2
+\draw[arr] (rail.south)  -- ++(0,-.22) -| ([xshift=-4.5cm]edge.north);
+\draw[arr] (floor.south) -- ++(0,-.22) -| ([xshift=-1.5cm]edge.north);
+\draw[arr] (wind.south)  -- ++(0,-.22) -| ([xshift=+1.5cm]edge.north);
+\draw[arr] (teg.south)   -- ++(0,-.22) -| ([xshift=+4.5cm]edge.north);
+
+%% ── TIER 3: Intelligence Layer ───────────────────────────────
+\node[mlbox, below=0.55cm of edge, xshift=-4.2cm] (fl) {%
+  \textbf{FedProx FL}\\
+  {\footnotesize LSTM · 24 h harvest prediction}\\
+  {\footnotesize privacy-preserving}
+};
+\node[mlbox, below=0.55cm of edge] (dt) {%
+  \textbf{GNN Digital Twin}\\
+  {\footnotesize GraphSAGE · K=3 hops}\\
+  {\footnotesize 60 s live sync}
+};
+\node[mlbox, below=0.55cm of edge, xshift=+4.2cm] (rl) {%
+  \textbf{PPO RL Router}\\
+  {\footnotesize \mbox{demand-aware} dispatch}\\
+  {\footnotesize DT-trained · 10M steps}
+};
+\node[tierlbl, left=0.3cm of fl] {Tier 3 — AI};
+
+%% Arrows T2 → T3
 \draw[arr] (edge.south) -| (fl.north);
 \draw[arr] (edge.south) -- (dt.north);
 \draw[arr] (edge.south) -| (rl.north);
 
-\node[tier4, below=0.4cm of dt, xshift=-1.2cm, text width=3.4cm] (grid)
-  {City Microgrid\\{\scriptsize smart meters · inverters · SCADA}};
-\node[tier4, below=0.4cm of dt, xshift=1.2cm, text width=3.4cm] (chain)
-  {Blockchain P2P Market\\{\scriptsize Hyperledger Fabric · $<$3s finality}};
+%% DT feeds RL (dashed feedback) — routed below boxes to avoid overlap
+\draw[-{Stealth[length=5pt]}, dashed, purple!50, thick]
+  (dt.south) -- ++(0,-0.18) -- ++(2.6,0) -- ++(0,0.18)
+  node[midway, below, font=\scriptsize\itshape, purple!60] {sim env}
+  (rl.south);
 
-\draw[arr] (fl.south) |- (grid.north);
-\draw[arr] (dt.south) -- ++(0,-0.2) -| (grid.north);
-\draw[arr] (rl.south) |- (chain.north);
+%% ── TIER 4: Integration ──────────────────────────────────────
+\node[intbox, below=0.55cm of dt, xshift=-2.2cm] (grid) {%
+  \textbf{City Microgrid Integration}\\
+  {\footnotesize Smart meters · \mbox{Bidirectional inverters}}\\
+  {\footnotesize \mbox{SCADA interface} · Grid safety relay}
+};
+\node[intbox, below=0.55cm of dt, xshift=+2.7cm] (chain) {%
+  \textbf{Blockchain P2P Energy Market}\\
+  {\footnotesize Hyperledger Fabric · Go chaincode}\\
+  {\footnotesize $<$3\,s finality · \mbox{Immutable audit trail}}
+};
+\node[tierlbl, left=0.3cm of grid] {Tier 4 — Output};
 
-\node[label, left=0.05cm of rail] {\rotatebox{90}{Tier 1}};
-\node[label, left=0.05cm of edge] {\rotatebox{90}{Tier 2}};
-\node[label, left=0.05cm of fl]   {\rotatebox{90}{Tier 3}};
-\node[label, left=0.05cm of grid] {\rotatebox{90}{Tier 4}};
+%% Arrows T3 → T4
+\draw[arr] (fl.south)  |- (grid.north);
+\draw[arr] (dt.south)  -- ++(0,-.25) -| (grid.north);
+\draw[arr] (rl.south)  |- (chain.north);
+
 \end{tikzpicture}
-\caption{KinetiMesh four-tier architecture. Each tier is independently deployable. Tier 2 alone suffices to power trackside IoT sensors; full grid integration requires all four tiers.}
+\caption{%
+KinetiMesh four-tier system architecture.
+\textit{Tier 1} provides multi-source kinetic energy.
+\textit{Tier 2} processes signals locally with TinyML and uploads privacy-preserving gradients.
+\textit{Tier 3} hosts the FedProx FL predictor, GraphSAGE Digital Twin, and PPO dispatch agent;
+the Digital Twin (dashed arrow) serves as the RL training environment.
+\textit{Tier 4} integrates harvested power into the city microgrid and settles energy credits on a Hyperledger Fabric ledger.
+Each tier is independently deployable.}
 \label{fig:architecture}
-\end{figure}
+\end{figure*}
 
 \textbf{Tier 1 (Physical Sources):} The harvester layer combines rail PMEH trackpad arrays, bimorph PZT pedestrian floor tiles, aerodynamic tunnel draft harvesters, and rail-ambient thermoelectric generators. AC output from each source is rectified via bridge rectifier circuits, filtered, and buffered in LiPo battery packs with charge management ICs.
 
