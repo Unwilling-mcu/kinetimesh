@@ -944,6 +944,11 @@ function buildFLCards(){document.getElementById('fl-cards').innerHTML=S.nodes.ma
   </div>`).join('');}
 
 /* ── API LIST ── */
+/* ── LIVE API BASE ── */
+const API_BASE = window.location.hostname === 'localhost' || window.location.protocol === 'file:'
+  ? 'http://localhost:8000'
+  : 'https://kinetimesh-api.onrender.com';
+
 const APIS=[
   {m:'GET',p:'/api/v1/nodes',d:'All 18 harvester node states',r:`{"nodes":[{"id":"R01","type":"rail","power_kw":1.84,"zone":0,"status":"active","fl_mae":0.082}],"count":18,"total_kw":12.4,"ts":"2025-06-01T08:32:14Z"}`},
   {m:'GET',p:'/api/v1/nodes/{id}/power',d:'Real-time node power output',r:`{"id":"R01","power_kw":1.84,"status":"active","fl_mae":0.082,"last_sync":"<1s"}`},
@@ -962,9 +967,34 @@ function buildAPI(){document.getElementById('api-list').innerHTML=APIS.map((e,i)
     <code class="ep">${e.p}</code>
     <span class="ep-desc">${e.d}</span>
   </div>`).join('');}
-function fireAPI(i){const e=APIS[i];const lat=(10+Math.random()*30).toFixed(0);
-  document.getElementById('api-st').textContent='200 OK  '+lat+'ms';
-  document.getElementById('api-resp').textContent=e.r;addEv(`🔌 ${e.m} <b>${e.p}</b> → 200 OK (${lat}ms)`);}
+function fireAPI(i){
+  const e=APIS[i];
+  const url = API_BASE + e.p.replace('{id}','R01').replace('{node_id}','R01');
+  const method = e.m === 'WS' ? 'GET' : e.m;
+  if(e.m === 'WS'){
+    document.getElementById('api-st').textContent='WS — open browser console';
+    document.getElementById('api-resp').textContent='WebSocket: ws://kinetimesh-api.onrender.com/ws/v1/stream\n\n// Connect with:\nconst ws = new WebSocket("wss://kinetimesh-api.onrender.com/ws/v1/stream");\nws.onmessage = e => console.log(JSON.parse(e.data));';
+    addEv(`🔌 WS <b>${e.p}</b> — see browser console for live stream`);
+    return;
+  }
+  const start=Date.now();
+  fetch(API_BASE + e.p.replace('{id}','R01').replace('{node_id}','R01'), {method})
+    .then(r=>{
+      const lat=Date.now()-start;
+      document.getElementById('api-st').textContent=r.status+' '+r.statusText+'  '+lat+'ms';
+      document.getElementById('api-st').style.color = r.ok ? 'var(--green)' : 'var(--coral)';
+      return r.json();
+    })
+    .then(data=>{
+      document.getElementById('api-resp').textContent=JSON.stringify(data,null,2);
+      addEv(`🔌 ${e.m} <b>${e.p}</b> → ${document.getElementById('api-st').textContent}`);
+    })
+    .catch(err=>{
+      document.getElementById('api-st').textContent='ERROR';
+      document.getElementById('api-resp').textContent='// Live API call failed — server may be waking up (free tier)\n// Try again in 30 seconds\n\nError: '+err.message+'\n\nFallback response:\n'+e.r;
+      addEv(`⚠ ${e.m} <b>${e.p}</b> → connection error (retry in 30s)`);
+    });
+}
 
 /* ── EVENTS ── */
 function addEv(msg){const ts=new Date().toLocaleTimeString();

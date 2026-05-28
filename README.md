@@ -2,23 +2,31 @@
 
 # ⚡ KinetiMesh
 
-### Federated Kinetic Intelligence Network for Urban Ambient Energy Harvesting
+### Federated Kinetic Intelligence Network for Urban Energy Harvesting
 
+[![CI/CD](https://github.com/Unwilling-mcu/kinetimesh/actions/workflows/ci.yml/badge.svg)](https://github.com/Unwilling-mcu/kinetimesh/actions)
 [![Python](https://img.shields.io/badge/Python-3.12-blue?style=flat-square&logo=python)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.111-green?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.3-red?style=flat-square&logo=pytorch)](https://pytorch.org)
-[![Docker](https://img.shields.io/badge/Docker-Compose-blue?style=flat-square&logo=docker)](https://docker.com)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Live-green?style=flat-square&logo=fastapi)](https://kinetimesh-api.onrender.com/docs)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.6-red?style=flat-square&logo=pytorch)](https://pytorch.org)
 [![License](https://img.shields.io/badge/License-Apache_2.0-yellow?style=flat-square)](LICENSE)
 
-*The world's first AI-governed, federated kinetic energy harvesting network.*
-
-**Author:** Sanchayan · B.Tech Information Technology  
-**GitHub:** [@Unwilling-mcu](https://github.com/Unwilling-mcu)  
-**Status:** Research Prototype · v3.0
+**Author:** Sanchayan Garai · B.Tech Information Technology · KIIT University  
+**GitHub:** [@Unwilling-mcu](https://github.com/Unwilling-mcu)
 
 ---
 
-[🚀 Quick Start](#quick-start) · [📐 Architecture](#architecture) · [🧠 AI Stack](#ai-stack) · [📡 API Docs](#api-docs) · [🔬 Research](#research)
+### 🌐 Live Links
+
+| Resource | URL |
+|----------|-----|
+| 🏠 **Portfolio / Landing Page** | [unwilling-mcu.github.io/kinetimesh](https://unwilling-mcu.github.io/kinetimesh/) |
+| ⚡ **Live System Demo (v4)** | [unwilling-mcu.github.io/kinetimesh/KinetiMesh_v4_Dashboard.html](https://unwilling-mcu.github.io/kinetimesh/KinetiMesh_v4_Dashboard.html) |
+| 🔌 **Live API (Swagger UI)** | [kinetimesh-api.onrender.com/docs](https://kinetimesh-api.onrender.com/docs) |
+| 📊 **API Health Check** | [kinetimesh-api.onrender.com/api/v1/health](https://kinetimesh-api.onrender.com/api/v1/health) |
+| 📄 **Research Proposal** | [unwilling-mcu.github.io/kinetimesh/KinetiMesh_Ultimate_Proposal.html](https://unwilling-mcu.github.io/kinetimesh/KinetiMesh_Ultimate_Proposal.html) |
+| 📁 **GitHub Repository** | [github.com/Unwilling-mcu/kinetimesh](https://github.com/Unwilling-mcu/kinetimesh) |
+
+> **Note:** The API is on Render's free tier — first request after inactivity may take ~30 seconds to wake up.
 
 </div>
 
@@ -26,167 +34,185 @@
 
 ## What is KinetiMesh?
 
-KinetiMesh is a full-stack AI platform that converts **waste mechanical energy** from high-speed rail vibrations, pedestrian footfalls, aerodynamic tunnel drafts, and thermal rail gradients into grid-injectable electricity — governed by a four-layer intelligent software stack:
+KinetiMesh is a full-stack research system that converts **waste mechanical energy** from high-speed rail vibrations, pedestrian footfalls, aerodynamic tunnel drafts, and thermal rail gradients into grid-injectable electricity — governed by a four-layer AI stack.
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **Edge** | TinyML · LoRaWAN · MQTT | On-device inference, privacy-preserving data collection |
-| **FL** | FedProx · LSTM · PyTorch | Federated 24h harvest prediction, no raw data sharing |
-| **Digital Twin** | GraphSAGE GNN · NetworkX | Real-time kinetic topology modeling |
-| **RL Dispatch** | PPO · Stable-Baselines3 | Demand-aware microgrid power routing |
-| **Blockchain** | Hyperledger Fabric | P2P energy credit trading & settlement |
-| **Quantum** | QAOA · Qiskit | Quantum-optimized energy routing (research module) |
-
----
-
-## Quick Start
-
-### Prerequisites
-- Docker 24+ and Docker Compose v2
-- Python 3.12+ (for local dev)
-- Node 20+ (for frontend dev)
-- 8GB RAM minimum
-
-### 1. Clone and configure
-```bash
-git clone https://github.com/Unwilling-mcu/kinetimesh.git
-cd kinetimesh
-cp .env.example .env
-# Edit .env with your configuration
-```
-
-### 2. Launch full stack
-```bash
-docker compose up -d
-```
-
-### 3. Access services
-| Service | URL | Credentials |
-|---------|-----|-------------|
-| Dashboard | http://localhost:3000 | — |
-| API Docs | http://localhost:8000/docs | — |
-| TimescaleDB | localhost:5432 | see .env |
-| Grafana | http://localhost:3001 | admin/kinetimesh |
-| Prometheus | http://localhost:9090 | — |
-
-### 4. Run FL training
-```bash
-cd ml/federated
-python train_fedprox.py --nodes 18 --rounds 100 --mu 0.01
-```
-
-### 5. Run RL agent
-```bash
-cd ml/rl
-python train_ppo.py --timesteps 1000000 --env KinetiMeshGridEnv-v1
-```
+The core claim: **the energy is already there. The waste is a software problem.**
 
 ---
 
 ## Architecture
 
 ```
-                    ┌─────────────────────────────────────────┐
-                    │           KINETIMESH PLATFORM            │
-                    └─────────────────────────────────────────┘
-
-  ┌──────────┐   LoRaWAN   ┌──────────┐   gRPC/REST  ┌──────────────┐
-  │ Rail PEH │ ──────────► │  Edge    │ ──────────►  │  FastAPI     │
-  │ Floor PEH│             │  Node    │              │  Backend     │
-  │ Wind TEG │             │ TinyML   │              │  (Python)    │
-  └──────────┘             └──────────┘              └──────┬───────┘
-                                                            │
-                    ┌───────────────────────────────────────┤
-                    │                                       │
-              ┌─────▼──────┐   ┌────────────┐   ┌──────────▼──────┐
-              │ FedProx FL │   │ GraphSAGE  │   │   PPO RL Agent  │
-              │ Aggregator │   │ Digital Twin│   │   Power Router  │
-              └─────┬──────┘   └─────┬──────┘   └──────────┬──────┘
-                    │                │                      │
-              ┌─────▼────────────────▼──────────────────────▼──────┐
-              │              TimescaleDB + Redis                    │
-              └─────────────────────────┬────────────────────────────┘
-                                        │
-                    ┌───────────────────▼────────────────────┐
-                    │      City Microgrid + Hyperledger       │
-                    │      Fabric P2P Energy Credit Market    │
-                    └────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  TIER 1 — Physical Sources                                   │
+│  Rail PMEH Arrays · Floor PZT Tiles · Wind · Thermal TEG    │
+└──────────────────────────┬──────────────────────────────────┘
+                           │ AC→DC · Bridge rectifier · LiPo
+┌──────────────────────────▼──────────────────────────────────┐
+│  TIER 2 — Edge Intelligence (TinyML Mesh)                    │
+│  RPi CM4 · TF Lite · LoRaWAN · MQTT/TLS · FedProx client   │
+└──────────┬──────────────┬──────────────────┬────────────────┘
+           │              │                  │
+┌──────────▼───┐  ┌───────▼──────┐  ┌───────▼──────┐
+│  FedProx FL  │  │  GraphSAGE   │  │  PPO RL      │
+│  LSTM 24h    │  │  Digital     │  │  Power       │
+│  Predictor   │  │  Twin        │  │  Router      │
+└──────────────┘  └──────────────┘  └──────────────┘
+           │              │                  │
+┌──────────▼──────────────▼──────────────────▼────────────────┐
+│  TIER 4 — City Microgrid + Hyperledger Fabric P2P Market     │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## AI Stack
+## Core AI Innovations
 
-### Federated Learning (FedProx)
-- **Model:** LSTM(64,128) → 96-step 24h forecast
-- **Algorithm:** FedProx with proximal regularization μ=0.01
-- **Privacy:** ε-differential privacy (ε=1.0, δ=1e-5) + SecAgg
-- **Target:** MAE < 0.08 kW/node, accuracy > 92%
-
-### Digital Twin (GraphSAGE)
-- **Graph:** G=(V,E), |V|=1000–10,000 nodes, |E|=edges weighted by line loss
-- **Model:** GraphSAGE (K=3 hops, d=128 hidden dim)
-- **Sync:** 60-second live refresh via MQTT → Redis → GNN inference
-
-### RL Dispatch (PPO)
-- **Algorithm:** Proximal Policy Optimization (clip ε=0.2, γ=0.99)
-- **State:** harvest_vec ⊕ demand_forecast ⊕ battery_soc ⊕ grid_price
-- **Action:** Continuous allocation vector ∈ ℝⁿ over n zones
-- **Reward:** α·green_util − β·curtailment − γ·grid_import
-
-### Quantum Routing (QAOA) — Research Module
-- **Algorithm:** QAOA depth p=3, optimization via COBYLA
-- **Problem:** QUBO energy routing formulation
-- **Advantage:** O(√N) quantum speedup claim over classical O(N)
-- **Backend:** Qiskit Aer simulator (hardware-ready)
+| # | Innovation | Tech | Novel Claim |
+|---|-----------|------|-------------|
+| 1 | **FedProx Harvest Prediction** | PyTorch · LSTM · FedProx | First FL across heterogeneous kinetic sources |
+| 2 | **GraphSAGE Digital Twin** | PyTorch Geometric · NetworkX | First GNN topology model for kinetic harvesters |
+| 3 | **PPO Power Dispatch** | Stable-Baselines3 · Gymnasium | First RL dispatch for multi-source kinetic mesh |
+| 4 | **QAOA Energy Routing** | Qiskit · QUBO | First QAOA application to kinetic mesh routing |
+| 5 | **P2P Energy Credits** | Hyperledger Fabric · Go | First blockchain market for ambient kinetic energy |
 
 ---
 
-## API Docs
+## Live API Endpoints
 
-Full OpenAPI 3.1 spec at `/docs` when running. Key endpoints:
+Base URL: `https://kinetimesh-api.onrender.com`
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/v1/health` | System health check |
+| `GET` | `/api/v1/nodes` | All 18 harvester node states |
+| `GET` | `/api/v1/nodes/{id}/power` | Real-time node power output |
+| `GET` | `/api/v1/forecast/24h` | 24h LSTM+FedProx forecast |
+| `GET` | `/api/v1/twin/topology` | GNN Digital Twin graph state |
+| `POST` | `/api/v1/rl/dispatch` | PPO agent power dispatch |
+| `GET` | `/api/v1/quantum/route` | QAOA optimal routing result |
+| `GET` | `/api/v1/blockchain/ledger` | Energy credit transactions |
+| `POST` | `/api/v1/events/train` | Inject train pass event |
+| `WS` | `/ws/v1/stream` | Live telemetry WebSocket |
+
+Full interactive docs: [kinetimesh-api.onrender.com/docs](https://kinetimesh-api.onrender.com/docs)
+
+---
+
+## Quick Start
+
+```bash
+# Clone
+git clone https://github.com/Unwilling-mcu/kinetimesh.git
+cd kinetimesh
+
+# Backend (PowerShell)
+cd backend
+python -m venv venv
+.\venv\Scripts\Activate          # Windows
+pip install -r requirements.txt
+uvicorn app.main:app --reload    # → http://localhost:8000/docs
+
+# FL Training
+cd ml/federated
+pip install torch numpy networkx
+python train_fedprox.py --nodes 18 --rounds 100 --mu 0.01
+
+# RL Training
+cd ml/rl
+pip install stable-baselines3 gymnasium
+python train_ppo.py --timesteps 1000000
+
+# Digital Twin
+cd ml/gnn
+python digital_twin.py
+
+# Full stack (Docker)
+cd infra
+docker compose up -d
+```
+
+---
+
+## Project Structure
 
 ```
-GET  /api/v1/nodes                    All harvester node states
-GET  /api/v1/nodes/{id}/power         Real-time node power
-GET  /api/v1/forecast/24h             24h LSTM+FedProx forecast
-GET  /api/v1/twin/topology            GNN Digital Twin graph state
-POST /api/v1/rl/dispatch              PPO agent dispatch action
-GET  /api/v1/quantum/route            QAOA optimal routing result
-GET  /api/v1/blockchain/ledger        Energy credit transactions
-WS   /ws/v1/stream                   Live telemetry WebSocket
-POST /api/v1/events/train             Inject train pass event
-GET  /api/v1/health                   System health check
+KinetiMesh/
+├── index.html                        ← Animated landing page
+├── KinetiMesh_v4_Dashboard.html      ← Live system demo (10 tabs)
+├── KinetiMesh_Ultimate_Proposal.html ← 22-section research proposal
+├── README.md
+├── .env.example
+├── .github/workflows/ci.yml          ← GitHub Actions CI/CD
+├── backend/
+│   ├── app/main.py                   ← FastAPI + 10 endpoints + WebSocket
+│   ├── requirements.txt              ← Server dependencies
+│   └── Dockerfile
+├── ml/
+│   ├── federated/train_fedprox.py    ← FedProx FL ✅ tested
+│   ├── gnn/digital_twin.py           ← GraphSAGE DT ✅ tested
+│   └── rl/train_ppo.py               ← PPO RL ✅ tested
+├── edge/edge_node.py                 ← MicroPython firmware ✅ tested
+├── docs/KinetiMesh_IEEE_Paper.tex    ← IEEE LaTeX paper
+├── kinetimesh_fl_best.pt             ← Trained FL model weights
+└── infra/
+    ├── docker-compose.yml            ← 6-service stack
+    └── init.sql                      ← TimescaleDB hypertables
 ```
+
+---
+
+## Tech Stack
+
+| Layer | Technologies |
+|-------|-------------|
+| **Backend** | FastAPI · Uvicorn · WebSocket · Pydantic |
+| **ML / AI** | PyTorch · FedProx · Stable-Baselines3 (PPO) · PyTorch Geometric |
+| **Database** | TimescaleDB · Redis |
+| **Edge** | TensorFlow Lite · LoRaWAN · MQTT · MicroPython |
+| **Blockchain** | Hyperledger Fabric · Go chaincode |
+| **Quantum** | Qiskit · Qiskit Aer |
+| **Infra** | Docker Compose · Kubernetes · GitHub Actions |
+| **Frontend** | Three.js · Chart.js · Anime.js |
+| **Deployment** | Render (API) · GitHub Pages (frontend) |
 
 ---
 
 ## Research
 
-**Paper:** *KinetiMesh: A Federated Kinetic Intelligence Network for Multi-Source Urban Ambient Energy Harvesting* — targeting IEEE Transactions on Smart Grid, 2026.
+**Paper:** *KinetiMesh: A Federated Kinetic Intelligence Network for Multi-Source Urban Ambient Energy Harvesting and AI-Governed Micro-Grid Integration*
 
-**Novel contributions:**
-1. First FL-based harvest prediction across heterogeneous kinetic sources
-2. First GNN Digital Twin of a kinetic energy harvester topology  
-3. First RL-governed multi-source kinetic power dispatch
-4. First QAOA application to kinetic energy mesh routing
-5. First blockchain P2P market for ambient kinetic energy credits
+LaTeX source: [`docs/KinetiMesh_IEEE_Paper.tex`](docs/KinetiMesh_IEEE_Paper.tex)  
+Target venue: IEEE SmartGridComm 2025 / NeurIPS Climate AI Workshop 2025
 
-**Key references:**
-- Min et al. (AIP Advances, 2024) — Rail PMEH energy densities
-- Selim et al. (Energies, 2024) — Pedestrian floor tile harvesting
-- Li et al. (NeurIPS, 2020) — FedProx algorithm
-- Hamilton et al. (NeurIPS, 2017) — GraphSAGE
+**Key results (simulation):**
+- FedProx achieves MAE = 0.077 kW/node after 100 rounds (vs 0.172 FedAvg)
+- GNN Digital Twin prediction error: 4.44% mean across 18 nodes
+- PPO agent: +52.1% green utilization vs rule-based baseline
+- QAOA routing: ~28% cost reduction vs classical greedy
+
+---
+
+## CI/CD Status
+
+| Check | Status |
+|-------|--------|
+| Backend Tests (16 tests) | [![Backend](https://github.com/Unwilling-mcu/kinetimesh/actions/workflows/ci.yml/badge.svg)](https://github.com/Unwilling-mcu/kinetimesh/actions) |
+| ML Module Tests | [![ML](https://github.com/Unwilling-mcu/kinetimesh/actions/workflows/ci.yml/badge.svg)](https://github.com/Unwilling-mcu/kinetimesh/actions) |
+| Docker Build | [![Docker](https://github.com/Unwilling-mcu/kinetimesh/actions/workflows/ci.yml/badge.svg)](https://github.com/Unwilling-mcu/kinetimesh/actions) |
 
 ---
 
 ## License
 
-Apache 2.0 — Free for research and non-commercial use.  
-Commercial deployment requires written permission.
+Apache 2.0 — Free for research and non-commercial use.
 
 ---
 
 <div align="center">
-Built with 🧠 by Sanchayan · B.Tech IT · 2025
+
+Built by **Sanchayan Garai** · B.Tech Information Technology · KIIT University · 2025
+
+*"The energy is already there. The waste is a software problem."*
+
 </div>
